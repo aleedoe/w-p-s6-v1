@@ -1,6 +1,4 @@
 from . import db
-from flask_jwt_extended import create_access_token
-from werkzeug.security import generate_password_hash, check_password_hash
 
 class ReturnDetailTransaction(db.Model):
     __tablename__ = 'return_detail_transactions'

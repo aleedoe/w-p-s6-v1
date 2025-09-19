@@ -1,5 +1,5 @@
 from flask import Blueprint
-from .controllers.admin import admin_login
+from .controllers.admin import admin_login, get_all_products, get_product_detail
 
 admin_bp = Blueprint('admin', __name__)
 reseller_bp = Blueprint('reseller', __name__)
@@ -7,3 +7,5 @@ reseller_bp = Blueprint('reseller', __name__)
 
 # Admin routes
 admin_bp.route('/login', methods=['POST'])(admin_login)
+admin_bp.route('/products', methods=['GET'])(get_all_products)
+admin_bp.route('/products/<int:product_id>', methods=['GET'])(get_product_detail)
