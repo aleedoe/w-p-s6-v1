@@ -20,6 +20,8 @@ import { ChangeLogIcon } from "../icons/sidebar/changelog-icon";
 import { usePathname } from "next/navigation";
 import { Tooltip } from "@heroui/tooltip";
 import { Avatar } from "@heroui/avatar";
+import { BottomIcon } from "../icons/sidebar/bottom-icon";
+import { AcmeLogo } from "../icons/acmelogo";
 
 export const SidebarWrapper = () => {
   const pathname = usePathname();
@@ -36,7 +38,12 @@ export const SidebarWrapper = () => {
         })}
       >
         <div className={Sidebar.Header()}>
-          <CompaniesDropdown />
+          <div className="flex items-center gap-2">
+            <AcmeLogo />
+              <h3 className="text-xl font-medium m-0 text-default-900 whitespace-nowrap">
+                {"Instagram"}
+              </h3>
+          </div>
         </div>
         <div className="flex flex-col justify-between h-full">
           <div className={Sidebar.Body()}>
