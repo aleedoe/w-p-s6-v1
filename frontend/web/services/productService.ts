@@ -7,6 +7,8 @@ export interface Product {
     category: string;
     price: number;
     quantity: number;
+    description?: string;
+    id_category?: number;
 }
 
 export const productService = {
@@ -14,5 +16,15 @@ export const productService = {
         const res = await api.get<Product[]>("/admin/products");
         return res.data;
     },
-    // bisa ditambah method lain misalnya create, update, delete
+
+    async createProduct(payload: {
+        name: string;
+        price: number;
+        quantity: number;
+        description?: string;
+        id_category: number;
+    }) {
+        const res = await api.post("/admin/products", payload);
+        return res.data;
+    },
 };
