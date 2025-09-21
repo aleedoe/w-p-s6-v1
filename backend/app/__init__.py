@@ -6,6 +6,7 @@ from config import config
 from app.models import *
 from flask_cors import CORS
 from datetime import timedelta
+import os
 
 
 migrate = Migrate()
@@ -15,11 +16,19 @@ def create_app(config_name='development'):
     app = Flask(__name__)
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
     app.config.from_object(config[config_name])
-    
+
+    # Pastikan folder upload ada
+    os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
+
     # Enable CORS
     CORS(app, resources={
         r"/api/*": {
-            "origins": ["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:53855", "http://127.0.0.1:53855"],
+            "origins": [
+                "http://localhost:3000",
+                "http://127.0.0.1:3000",
+                "http://localhost:53855",
+                "http://127.0.0.1:53855"
+            ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"]
         }

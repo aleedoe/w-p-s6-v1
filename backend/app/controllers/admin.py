@@ -1,6 +1,10 @@
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 from flask_jwt_extended import create_access_token, get_jwt_identity
 from ..models import Admin, db, Product, Category, Image
+from werkzeug.utils import secure_filename
+import os
+import uuid
+
 
 def admin_login():
     data = request.get_json()
@@ -53,28 +57,50 @@ def get_product_detail(product_id):
 
 
 def create_product():
-    data = request.get_json()
+    name = request.form.get("name")
+    price = request.form.get("price")
+    id_category = request.form.get("id_category")
+    quantity = request.form.get("quantity", 0)
+    description = request.form.get("description", "")
 
-    # Validasi input sederhana
-    required_fields = ["name", "price", "id_category"]
-    for field in required_fields:
-        if field not in data:
-            return jsonify({"msg": f"{field} is required"}), 400
+    # Validasi sederhana
+    if not name or not price or not id_category:
+        return jsonify({"msg": "Missing required fields"}), 400
 
-    # Cek apakah kategori ada
-    category = Category.query.filter_by(id=data["id_category"]).first()
+    category = Category.query.filter_by(id=id_category).first()
     if not category:
         return jsonify({"msg": "Category not found"}), 404
 
     new_product = Product(
-        name=data["name"],
-        quantity=data.get("quantity", 0),
-        price=data["price"],
-        description=data.get("description", ""),
-        id_category=data["id_category"]
+        name=name,
+        quantity=quantity,
+        price=price,
+        description=description,
+        id_category=id_category
     )
 
     db.session.add(new_product)
+    db.session.flush()  # supaya id_product langsung tersedia
+
+    # Upload multiple images
+    files = request.files.getlist("images")
+    for file in files:
+        if file:
+            # Ambil ekstensi asli
+            ext = os.path.splitext(file.filename)[1]
+            # Generate nama random
+            filename = f"{uuid.uuid4().hex}{ext}"
+            filename = secure_filename(filename)
+
+            save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            file.save(save_path)
+
+            new_image = Image(
+                id_product=new_product.id,
+                name=filename
+            )
+            db.session.add(new_image)
+
     db.session.commit()
 
     return jsonify({
@@ -85,7 +111,8 @@ def create_product():
             "quantity": new_product.quantity,
             "price": new_product.price,
             "description": new_product.description,
-            "id_category": new_product.id_category
+            "id_category": new_product.id_category,
+            "images": [img.name for img in new_product.images]  # daftar path gambar
         }
     }), 201
 
