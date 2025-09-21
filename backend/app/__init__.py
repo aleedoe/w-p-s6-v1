@@ -13,7 +13,11 @@ migrate = Migrate()
 jwt = JWTManager()
 
 def create_app(config_name='development'):
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        static_folder=os.path.join(os.path.dirname(__file__), "..", "static"),
+        static_url_path="/static"
+    )
     app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=1)
     app.config.from_object(config[config_name])
 
