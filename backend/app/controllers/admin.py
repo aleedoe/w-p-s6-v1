@@ -119,18 +119,41 @@ def create_product():
 
 def update_product(product_id):
     product = Product.query.filter_by(id=product_id).first()
-    
+
     if not product:
         return jsonify({"msg": "Product not found"}), 404
 
-    data = request.get_json()
+    # Ambil data form (bukan JSON lagi, karena ada file upload)
+    name = request.form.get("name", product.name)
+    price = request.form.get("price", product.price)
+    quantity = request.form.get("quantity", product.quantity)
+    description = request.form.get("description", product.description)
+    id_category = request.form.get("id_category", product.id_category)
 
-    # Update field jika ada di request
-    product.name = data.get("name", product.name)
-    product.quantity = data.get("quantity", product.quantity)
-    product.price = data.get("price", product.price)
-    product.description = data.get("description", product.description)
-    product.id_category = data.get("id_category", product.id_category)
+    product.name = name
+    product.price = price
+    product.quantity = quantity
+    product.description = description
+    product.id_category = id_category
+
+    # Tambah gambar baru (jika ada)
+    files = request.files.getlist("images")
+    for file in files:
+        if file:
+            ext = os.path.splitext(file.filename)[1]
+            filename = f"{uuid.uuid4().hex}{ext}"
+            filename = secure_filename(filename)
+
+            save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            file.save(save_path)
+
+            relative_path = f"{filename}"
+
+            new_image = Image(
+                id_product=product.id,
+                name=relative_path
+            )
+            db.session.add(new_image)
 
     db.session.commit()
 
@@ -142,9 +165,12 @@ def update_product(product_id):
             "quantity": product.quantity,
             "price": product.price,
             "description": product.description,
-            "id_category": product.id_category
+            "id_category": product.id_category,
+            "images": [img.name for img in product.images]
         }
     }), 200
+
+
 
 
 def delete_product(product_id):
