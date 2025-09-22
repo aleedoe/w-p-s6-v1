@@ -188,10 +188,17 @@ def update_product(product_id):
 
 def delete_product(product_id):
     product = Product.query.filter_by(id=product_id).first()
-    
     if not product:
         return jsonify({"msg": "Product not found"}), 404
 
+    # Hapus gambar dari DB & storage
+    for img in product.images:  # relasi ke tabel Image
+        file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], img.name)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+        db.session.delete(img)
+
+    # Hapus produk
     db.session.delete(product)
     db.session.commit()
 
