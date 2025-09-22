@@ -8,7 +8,6 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    useDisclosure,
 } from "@heroui/modal";
 import { Input, Textarea } from "@heroui/input";
 import {
@@ -17,10 +16,10 @@ import {
     DropdownMenu,
     DropdownTrigger,
 } from "@heroui/dropdown";
-import { productService, Product } from "@/services/productService";
+import { productService } from "@/services/productService";
 
 interface EditProductProps {
-    productId: number | null; // null kalau belum ada yang dipilih
+    productId: number | null;
     isOpen: boolean;
     onClose: () => void;
 }
@@ -39,10 +38,10 @@ export const EditProduct: React.FC<EditProductProps> = ({
     });
     const [files, setFiles] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<string[]>([]);
+    const [removedImages, setRemovedImages] = useState<string[]>([]);
     const [loading, setLoading] = useState(false);
     const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
 
-    // daftar kategori (sementara hardcoded, bisa dari API nanti)
     const categories = [
         { id: "1", name: "Pakaian" },
         { id: "2", name: "Elektronik" },
@@ -84,9 +83,9 @@ export const EditProduct: React.FC<EditProductProps> = ({
                     });
                     setSelectedKeys(new Set([String(data.id_category)]));
 
-                    // simpan gambar existing dari backend
                     setExistingImages(data.images || []);
-                    setFiles([]); // reset file baru
+                    setRemovedImages([]);
+                    setFiles([]);
                 } catch (err) {
                     console.error("Gagal ambil detail produk", err);
                 }
@@ -98,14 +97,18 @@ export const EditProduct: React.FC<EditProductProps> = ({
         if (!productId) return;
         try {
             setLoading(true);
-            await productService.updateProduct(productId, {
-                name: form.name,
-                price: Number(form.price),
-                quantity: Number(form.quantity),
-                description: form.description,
-                id_category: Number(form.id_category),
-                images: files, // hanya upload gambar baru
-            });
+            await productService.updateProduct(
+                productId,
+                {
+                    name: form.name,
+                    price: Number(form.price),
+                    quantity: Number(form.quantity),
+                    description: form.description,
+                    id_category: Number(form.id_category),
+                    removedImages, // kirim ke backend
+                },
+                files
+            );
             alert("Produk berhasil diperbarui ✅");
             onClose();
             window.location.reload();
@@ -117,12 +120,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
     };
 
     return (
-        <Modal
-            isOpen={isOpen}
-            onOpenChange={onClose}
-            placement="top-center"
-            size="lg"
-        >
+        <Modal isOpen={isOpen} onOpenChange={onClose} placement="top-center" size="lg">
             <ModalContent>
                 <>
                     <ModalHeader className="flex flex-col gap-1">
@@ -147,18 +145,14 @@ export const EditProduct: React.FC<EditProductProps> = ({
                             type="number"
                             variant="bordered"
                             value={form.quantity}
-                            onChange={(e) =>
-                                handleChange("quantity", e.target.value)
-                            }
+                            onChange={(e) => handleChange("quantity", e.target.value)}
                         />
                         <Textarea
                             label="Deskripsi"
                             placeholder="Masukkan deskripsi produk"
                             variant="bordered"
                             value={form.description}
-                            onChange={(e) =>
-                                handleChange("description", e.target.value)
-                            }
+                            onChange={(e) => handleChange("description", e.target.value)}
                         />
 
                         {/* Dropdown kategori */}
@@ -192,9 +186,10 @@ export const EditProduct: React.FC<EditProductProps> = ({
                         <div
                             {...getRootProps()}
                             className={`mt-4 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 cursor-pointer transition
-                                ${isDragActive
-                                    ? "border-blue-500 bg-blue-50"
-                                    : "border-gray-300 bg-gray-50 hover:border-blue-400"
+                                ${
+                                    isDragActive
+                                        ? "border-blue-500 bg-blue-50"
+                                        : "border-gray-300 bg-gray-50 hover:border-blue-400"
                                 }`}
                         >
                             <input {...getInputProps()} />
@@ -217,10 +212,22 @@ export const EditProduct: React.FC<EditProductProps> = ({
                                         className="relative group border rounded-xl overflow-hidden shadow-sm"
                                     >
                                         <img
-                                            src={`http://127.0.0.1:5000/static/uploads/products/${img}`} // pastikan sesuai API static files
+                                            src={`http://127.0.0.1:5000/static/uploads/products/${img}`}
                                             alt={img}
                                             className="h-28 w-full object-cover"
                                         />
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setRemovedImages((prev) => [...prev, img]);
+                                                setExistingImages((prev) =>
+                                                    prev.filter((_, idx) => idx !== i)
+                                                );
+                                            }}
+                                            className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-2 py-1 text-xs opacity-0 group-hover:opacity-100 transition"
+                                        >
+                                            ✕
+                                        </button>
                                     </div>
                                 ))}
                             </div>
@@ -259,11 +266,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
                         <Button color="danger" variant="flat" onClick={onClose}>
                             Batal
                         </Button>
-                        <Button
-                            color="primary"
-                            isLoading={loading}
-                            onPress={handleSubmit}
-                        >
+                        <Button color="primary" isLoading={loading} onPress={handleSubmit}>
                             Simpan Perubahan
                         </Button>
                     </ModalFooter>

@@ -119,24 +119,41 @@ def create_product():
 
 def update_product(product_id):
     product = Product.query.filter_by(id=product_id).first()
-
     if not product:
         return jsonify({"msg": "Product not found"}), 404
 
-    # Ambil data form (bukan JSON lagi, karena ada file upload)
-    name = request.form.get("name", product.name)
-    price = request.form.get("price", product.price)
-    quantity = request.form.get("quantity", product.quantity)
-    description = request.form.get("description", product.description)
-    id_category = request.form.get("id_category", product.id_category)
+    # Ambil data dari form-data
+    name = request.form.get("name")
+    price = request.form.get("price")
+    quantity = request.form.get("quantity")
+    description = request.form.get("description")
+    id_category = request.form.get("id_category")
 
-    product.name = name
-    product.price = price
-    product.quantity = quantity
-    product.description = description
-    product.id_category = id_category
+    if name:
+        product.name = name
+    if price:
+        product.price = price
+    if quantity:
+        product.quantity = quantity
+    if description is not None:
+        product.description = description
+    if id_category:
+        product.id_category = id_category
 
-    # Tambah gambar baru (jika ada)
+    # ===== Hapus gambar lama =====
+    removed_images = request.form.getlist("removedImages[]")  # frontend kirim array
+    for filename in removed_images:
+        img = Image.query.filter_by(id_product=product.id, name=filename).first()
+        if img:
+            # hapus record di DB
+            db.session.delete(img)
+
+            # hapus file fisik
+            file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
+    # ===== Tambahkan gambar baru =====
     files = request.files.getlist("images")
     for file in files:
         if file:
@@ -148,11 +165,7 @@ def update_product(product_id):
             file.save(save_path)
 
             relative_path = f"{filename}"
-
-            new_image = Image(
-                id_product=product.id,
-                name=relative_path
-            )
+            new_image = Image(id_product=product.id, name=relative_path)
             db.session.add(new_image)
 
     db.session.commit()

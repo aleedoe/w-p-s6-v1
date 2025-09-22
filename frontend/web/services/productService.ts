@@ -51,29 +51,25 @@ export const productService = {
         return res.data;
     },
 
-    async updateProduct(
-        id: number,
-        payload: {
-            name: string;
-            price: number;
-            quantity: number;
-            description?: string;
-            id_category: number;
-            images?: File[];
-        }
-    ) {
+    async updateProduct(id: number, payload: any, files: File[]) {
         const formData = new FormData();
         formData.append("name", payload.name);
         formData.append("price", String(payload.price));
         formData.append("quantity", String(payload.quantity));
-        if (payload.description) formData.append("description", payload.description);
+        formData.append("description", payload.description || "");
         formData.append("id_category", String(payload.id_category));
 
-        if (payload.images) {
-            payload.images.forEach((file) => {
-                formData.append("images", file);
+        // Kirim daftar gambar yang akan dihapus
+        if (payload.removedImages && payload.removedImages.length > 0) {
+            payload.removedImages.forEach((imageName: string) => {
+                formData.append("removedImages[]", imageName);
             });
         }
+
+        // tambahkan file baru
+        files.forEach((file) => {
+            formData.append("images", file);
+        });
 
         const res = await api.put(`/admin/products/${id}`, formData, {
             headers: { "Content-Type": "multipart/form-data" },
