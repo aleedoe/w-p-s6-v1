@@ -22,6 +22,7 @@ import { Tooltip } from "@heroui/tooltip";
 import { Avatar } from "@heroui/avatar";
 import { BottomIcon } from "../icons/sidebar/bottom-icon";
 import { AcmeLogo } from "../icons/acmelogo";
+import { ShoppingCartIcon } from "../icons/sidebar/shopping-cart-icon";
 
 export const SidebarWrapper = () => {
   const pathname = usePathname();
@@ -61,10 +62,10 @@ export const SidebarWrapper = () => {
                 href="/dashboard/products"
               />
               <SidebarItem
-                isActive={pathname === "/dashboard/accounts"}
-                title="Accounts"
-                icon={<AccountsIcon />}
-                href="/dashboard/accounts"
+                isActive={pathname === "/dashboard/orders"}
+                title="Orders"
+                icon={<ShoppingCartIcon />}
+                href="/dashboard/orders"
               />
             </SidebarMenu>
           </div>
