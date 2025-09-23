@@ -236,3 +236,54 @@ def get_all_transactions():
 
     return jsonify(result)
 
+
+def get_transaction_detail(transaction_id):
+    # Ambil transaksi utama
+    transaction = (
+        db.session.query(Transaction)
+        .join(Reseller, Transaction.id_reseller == Reseller.id)
+        .filter(Transaction.id == transaction_id)
+        .first()
+    )
+
+    if not transaction:
+        return jsonify({"error": "Transaction not found"}), 404
+
+    # Ambil detail per produk
+    details = (
+        db.session.query(
+            Product.id.label("id_product"),
+            Product.name.label("product_name"),
+            Product.price.label("product_price"),
+            DetailTransaction.quantity.label("quantity")
+        )
+        .join(Product, DetailTransaction.id_product == Product.id)
+        .filter(DetailTransaction.id_transaction == transaction_id)
+        .all()
+    )
+
+    # Hitung total item & total harga
+    total_items = sum(d.quantity for d in details)
+    total_price = sum(d.quantity * d.product_price for d in details)
+
+    # Format hasil ke JSON
+    result = {
+        "id_transaction": transaction.id,
+        "id_reseller": transaction.id_reseller,
+        "reseller_name": transaction.reseller.name,
+        "transaction_date": transaction.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "products": [
+            {
+                "id_product": d.id_product,
+                "product_name": d.product_name,
+                "quantity": d.quantity,
+                "price": float(d.product_price),
+                "subtotal": float(d.quantity * d.product_price)
+            }
+            for d in details
+        ],
+        "total_items": total_items,
+        "total_price": float(total_price)
+    }
+
+    return jsonify(result)
