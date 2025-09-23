@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
-import { TableProduct } from "@/components/table-product/table";
 import { Input } from "@heroui/input";
+import { TableTransaction } from "@/components/table-order/table";
 
 export const Orders = () => {
     return (
@@ -21,7 +21,7 @@ export const Orders = () => {
                 </div>
             </div>
             <div className="max-w-[95rem] mx-auto w-full">
-                <TableProduct />
+                <TableTransaction />
             </div>
         </div>
     );
