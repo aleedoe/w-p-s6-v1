@@ -1,6 +1,7 @@
 from flask import request, jsonify, current_app
 from flask_jwt_extended import create_access_token, get_jwt_identity
-from ..models import Admin, db, Product, Category, Image
+from ..models import Admin, db, Product, Category, Image, Transaction, Reseller, DetailTransaction
+from sqlalchemy import func
 from werkzeug.utils import secure_filename
 import os
 import uuid
@@ -184,8 +185,6 @@ def update_product(product_id):
     }), 200
 
 
-
-
 def delete_product(product_id):
     product = Product.query.filter_by(id=product_id).first()
     if not product:
@@ -203,3 +202,37 @@ def delete_product(product_id):
     db.session.commit()
 
     return jsonify({"msg": "Product deleted successfully"}), 200
+
+
+def get_all_transactions():
+    # Query dengan join
+    transactions = (
+        db.session.query(
+            Transaction.id.label("id_transaction"),
+            Reseller.id.label("reseller_id"),
+            Reseller.name.label("reseller_name"),
+            Transaction.created_at.label("transaction_date"),
+            func.sum(DetailTransaction.quantity).label("total_items"),
+            func.sum(DetailTransaction.quantity * Product.price).label("total_price")
+        )
+        .join(Reseller, Transaction.id_reseller == Reseller.id)
+        .join(DetailTransaction, Transaction.id == DetailTransaction.id_transaction)
+        .join(Product, DetailTransaction.id_product == Product.id)
+        .group_by(Transaction.id, Reseller.name, Transaction.created_at)
+        .all()
+    )
+
+    # Format hasil ke JSON
+    result = []
+    for t in transactions:
+        result.append({
+            "id_transaction": t.id_transaction,
+            "id_reseller": t.reseller_id,
+            "reseller_name": t.reseller_name,
+            "transaction_date": t.transaction_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "total_items": int(t.total_items) if t.total_items else 0,
+            "total_price": float(t.total_price) if t.total_price else 0
+        })
+
+    return jsonify(result)
+
