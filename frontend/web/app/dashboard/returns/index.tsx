@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { Input } from "@heroui/input";
-import { TableTransaction } from "@/components/table-order/table";
+import { TableReturn } from "@/components/table-return/table";
 
 export const Returns = () => {
     return (
@@ -14,14 +14,14 @@ export const Returns = () => {
                             input: "w-full",
                             mainWrapper: "w-full",
                         }}
-                        placeholder="Search product"
+                        placeholder="Search return"
                     />
                 </div>
                 <div className="flex flex-row flex-wrap">
                 </div>
             </div>
             <div className="max-w-[95rem] mx-auto w-full">
-                <TableTransaction />
+                <TableReturn />
             </div>
         </div>
     );

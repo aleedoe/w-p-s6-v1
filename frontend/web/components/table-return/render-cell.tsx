@@ -4,8 +4,8 @@ import { Tooltip } from "@heroui/tooltip";
 import { Chip } from "@heroui/chip";
 import { useDisclosure } from "@heroui/modal";
 import { EyeIcon } from "../icons/table/eye-icon";
-import { DetailReturn } from "@/app/dashboard/returns/detail-return";
 import { returnService } from "@/services/returnService";
+import { DetailReturn } from "@/app/dashboard/returns/detail-return";
 
 interface Props {
     returnTransaction: any;

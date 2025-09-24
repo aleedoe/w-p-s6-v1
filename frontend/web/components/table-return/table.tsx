@@ -10,10 +10,8 @@ import {
     TableRow,
     TableCell,
 } from "@heroui/table";
-import {
-    returnService,
-    ReturnTransaction,
-} from "@/services/returnService";
+import { returnService, ReturnTransaction } from "@/services/returnService";
+
 
 const columns = [
     { name: "NO", uid: "no" },
