@@ -59,6 +59,7 @@ export default function LoginPage() {
                         label="Email"
                         labelPlacement="outside"
                         placeholder="Enter your email"
+                        value={"admin@gmail.com"}
                     />
                     <Input
                         isRequired
@@ -67,6 +68,7 @@ export default function LoginPage() {
                         label="Password"
                         labelPlacement="outside"
                         placeholder="Enter your password"
+                        value={"admin123"}
                     />
 
                     {error && <p className="text-red-500 text-sm">{error}</p>}
