@@ -10,11 +10,22 @@ import uuid
 def admin_login():
     data = request.get_json()
     print(data)
+    
+    # Mencari admin berdasarkan email
     admin = Admin.query.filter_by(email=data.get('email')).first()
     
+    # Cek apakah admin ditemukan dan password valid
     if admin and admin.check_password(data.get('password')):
+        # Membuat token akses
         access_token = admin.generate_auth_token()
-        return jsonify(access_token=access_token), 200
+        
+        # Menyusun response dengan data yang diinginkan (name, email, access_token)
+        return jsonify({
+            "id": admin.id,
+            "name": admin.name,
+            "email": admin.email,
+            "access_token": access_token
+        }), 200
     
     return jsonify({"msg": "Bad email or password"}), 401
 

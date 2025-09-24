@@ -1,9 +1,18 @@
-import { Layout } from "@/components/layoutD/layoutD";
+"use client"
 
-export default function DashboardLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
-    return (<Layout>{children}</Layout>);
+import { useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { Layout } from "@/components/layoutD/layoutD"
+
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+    const router = useRouter()
+
+    useEffect(() => {
+        const token = localStorage.getItem("token")
+        if (!token) {
+            router.replace("/login")
+        }
+    }, [router])
+
+    return <Layout>{children}</Layout>
 }
