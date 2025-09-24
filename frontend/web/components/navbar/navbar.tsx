@@ -9,6 +9,7 @@ import { UserDropdown } from "./user-dropdown";
 import { Navbar, NavbarContent } from "@heroui/navbar";
 import { Input } from "@heroui/input";
 import { Link } from "@heroui/link";
+import { DarkModeSwitch } from "./darkmodeswitch";
 
 interface Props {
   children: React.ReactNode;
@@ -28,38 +29,17 @@ export const NavbarWrapper = ({ children }: Props) => {
           <BurguerButton />
         </NavbarContent>
         <NavbarContent className="w-full max-md:hidden">
-          <Input
-            startContent={<SearchIcon />}
-            isClearable
-            className="w-full"
-            classNames={{
-              input: "w-full",
-              mainWrapper: "w-full",
-            }}
-            placeholder="Search..."
-          />
         </NavbarContent>
         <NavbarContent
           justify="end"
           className="w-fit data-[justify=end]:flex-grow-0"
         >
-          <div className="flex items-center gap-2 max-md:hidden">
-            <FeedbackIcon />
-            <span>Feedback?</span>
-          </div>
-
-          <NotificationsDropdown />
-
-          <div className="max-md:hidden">
-            <SupportIcon />
-          </div>
-
           <Link
             href="https://github.com/Siumauricio/nextui-dashboard-template"
             target={"_blank"}
           >
-            <GithubIcon />
           </Link>
+          <DarkModeSwitch />
           <NavbarContent>
             <UserDropdown />
           </NavbarContent>

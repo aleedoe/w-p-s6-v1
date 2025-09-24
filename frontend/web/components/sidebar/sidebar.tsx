@@ -23,6 +23,7 @@ import { Avatar } from "@heroui/avatar";
 import { BottomIcon } from "../icons/sidebar/bottom-icon";
 import { AcmeLogo } from "../icons/acmelogo";
 import { ShoppingCartIcon } from "../icons/sidebar/shopping-cart-icon";
+import { Button } from "@heroui/button";
 
 export const SidebarWrapper = () => {
   const pathname = usePathname();
@@ -76,22 +77,7 @@ export const SidebarWrapper = () => {
             </SidebarMenu>
           </div>
           <div className={Sidebar.Footer()}>
-            <Tooltip content={"Settings"} color="primary">
-              <div className="max-w-fit">
-                <SettingsIcon />
-              </div>
-            </Tooltip>
-            <Tooltip content={"Adjustments"} color="primary">
-              <div className="max-w-fit">
-                <FilterIcon />
-              </div>
-            </Tooltip>
-            <Tooltip content={"Profile"} color="primary">
-              <Avatar
-                src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-                size="sm"
-              />
-            </Tooltip>
+              <Button color="danger" className="w-full">Log Out</Button>
           </div>
         </div>
       </div>
