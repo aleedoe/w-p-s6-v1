@@ -316,25 +316,28 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                             >
                                 Tutup
                             </Button>
-                            {/* Tombol Accept/Reject hanya muncul jika status pending */}
-                            {(!transactionDetail?.status || transactionDetail?.status === 'pending') && (
-                                <>
-                                    <Button
-                                        color="danger"
-                                        variant="flat"
-                                        onPress={handleReject}
-                                        className="font-medium"
-                                    >
-                                        Tolak
-                                    </Button>
-                                    <Button
-                                        className="bg-blue-600 hover:bg-blue-500 text-white font-medium"
-                                        onPress={handleAccept}
-                                    >
-                                        Terima
-                                    </Button>
-                                </>
-                            )}
+                            {/* Tombol Accept/Reject hanya muncul jika status pending atau undefined */}
+                            {(!transactionDetail?.status ||
+                                transactionDetail?.status === 'pending' ||
+                                transactionDetail?.status === null ||
+                                transactionDetail?.status === '') && (
+                                    <>
+                                        <Button
+                                            color="danger"
+                                            variant="flat"
+                                            onPress={handleReject}
+                                            className="font-medium"
+                                        >
+                                            Tolak
+                                        </Button>
+                                        <Button
+                                            className="bg-blue-600 hover:bg-blue-500 text-white font-medium"
+                                            onPress={handleAccept}
+                                        >
+                                            Terima
+                                        </Button>
+                                    </>
+                                )}
                         </ModalFooter>
                     </>
                 )}

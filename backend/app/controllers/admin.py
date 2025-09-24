@@ -209,9 +209,9 @@ def get_all_transactions():
     transactions = (
         db.session.query(
             Transaction.id.label("id_transaction"),
+            Transaction.status.label("status"),  # TAMBAHKAN INI - field status dari Transaction
             Reseller.id.label("reseller_id"),
             Reseller.name.label("reseller_name"),
-            Transaction.status.label("status"),
             Transaction.created_at.label("transaction_date"),
             func.sum(DetailTransaction.quantity).label("total_items"),
             func.sum(DetailTransaction.quantity * Product.price).label("total_price")
@@ -219,7 +219,7 @@ def get_all_transactions():
         .join(Reseller, Transaction.id_reseller == Reseller.id)
         .join(DetailTransaction, Transaction.id == DetailTransaction.id_transaction)
         .join(Product, DetailTransaction.id_product == Product.id)
-        .group_by(Transaction.id, Reseller.name, Transaction.created_at)
+        .group_by(Transaction.id, Transaction.status, Reseller.name, Transaction.created_at)  # TAMBAHKAN Transaction.status
         .all()
     )
 
@@ -228,9 +228,9 @@ def get_all_transactions():
     for t in transactions:
         result.append({
             "id_transaction": t.id_transaction,
+            "status": t.status,  # TAMBAHKAN INI - field status dalam response
             "id_reseller": t.reseller_id,
             "reseller_name": t.reseller_name,
-            "status": t.status,
             "transaction_date": t.transaction_date.strftime("%Y-%m-%d %H:%M:%S"),
             "total_items": int(t.total_items) if t.total_items else 0,
             "total_price": float(t.total_price) if t.total_price else 0
@@ -271,6 +271,7 @@ def get_transaction_detail(transaction_id):
     # Format hasil ke JSON
     result = {
         "id_transaction": transaction.id,
+        "status": transaction.status,  # TAMBAHKAN INI - field status dalam response detail
         "id_reseller": transaction.id_reseller,
         "reseller_name": transaction.reseller.name,
         "transaction_date": transaction.created_at.strftime("%Y-%m-%d %H:%M:%S"),
