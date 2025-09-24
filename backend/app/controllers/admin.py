@@ -1,6 +1,6 @@
 from flask import request, jsonify, current_app
 from flask_jwt_extended import create_access_token, get_jwt_identity
-from ..models import Admin, db, Product, Category, Image, Transaction, Reseller, DetailTransaction
+from ..models import Admin, db, Product, Category, Image, Transaction, Reseller, DetailTransaction, ReturnTransaction, ReturnDetailTransaction
 from sqlalchemy import func
 from werkzeug.utils import secure_filename
 import os
@@ -315,3 +315,130 @@ def reject_transaction(transaction_id):
     db.session.commit()
 
     return jsonify({"message": f"Transaction {transaction_id} has been rejected."}), 200
+
+
+def get_all_return_transactions():
+    # Query dengan join
+    return_transactions = (
+        db.session.query(
+            ReturnTransaction.id.label("id_return_transaction"),
+            ReturnTransaction.status.label("status"),
+            Reseller.id.label("reseller_id"),
+            Reseller.name.label("reseller_name"),
+            ReturnTransaction.created_at.label("return_date"),
+            func.sum(ReturnDetailTransaction.quantity).label("total_items"),
+            func.sum(ReturnDetailTransaction.quantity * Product.price).label("total_price")
+        )
+        .join(Reseller, ReturnTransaction.id_reseller == Reseller.id)
+        .join(ReturnDetailTransaction, ReturnTransaction.id == ReturnDetailTransaction.id_return_transaction)
+        .join(Product, ReturnDetailTransaction.id_product == Product.id)
+        .group_by(ReturnTransaction.id, Reseller.id, Reseller.name, ReturnTransaction.created_at, ReturnTransaction.status)
+        .all()
+    )
+
+    # Format hasil ke JSON
+    result = []
+    for rt in return_transactions:
+        result.append({
+            "id_return_transaction": rt.id_return_transaction,
+            "status": rt.status,
+            "id_reseller": rt.reseller_id,
+            "reseller_name": rt.reseller_name,
+            "return_date": rt.return_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "total_items": int(rt.total_items) if rt.total_items else 0,
+            "total_price": float(rt.total_price) if rt.total_price else 0
+        })
+
+    return jsonify(result)
+
+
+def get_return_transaction_detail(return_transaction_id):
+    # Ambil return transaksi utama
+    return_transaction = (
+        db.session.query(ReturnTransaction)
+        .join(Reseller, ReturnTransaction.id_reseller == Reseller.id)
+        .filter(ReturnTransaction.id == return_transaction_id)
+        .first()
+    )
+
+    if not return_transaction:
+        return jsonify({"error": "Return Transaction not found"}), 404
+
+    # Ambil detail produk yang direturn
+    details = (
+        db.session.query(
+            Product.id.label("id_product"),
+            Product.name.label("product_name"),
+            Product.price.label("product_price"),
+            ReturnDetailTransaction.quantity.label("quantity"),
+            ReturnDetailTransaction.reason.label("reason")
+        )
+        .join(Product, ReturnDetailTransaction.id_product == Product.id)
+        .filter(ReturnDetailTransaction.id_return_transaction == return_transaction_id)
+        .all()
+    )
+
+    # Hitung total item & total harga
+    total_items = sum(d.quantity for d in details)
+    total_price = sum(d.quantity * d.product_price for d in details)
+
+    # Format hasil ke JSON
+    result = {
+        "id_return_transaction": return_transaction.id,
+        "id_transaction": return_transaction.id_transaction,
+        "id_reseller": return_transaction.id_reseller,
+        "reseller_name": return_transaction.reseller.name,
+        "status": return_transaction.status,
+        "return_date": return_transaction.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        "products": [
+            {
+                "id_product": d.id_product,
+                "product_name": d.product_name,
+                "quantity": d.quantity,
+                "price": float(d.product_price),
+                "subtotal": float(d.quantity * d.product_price),
+                "reason": d.reason
+            }
+            for d in details
+        ],
+        "total_items": total_items,
+        "total_price": float(total_price)
+    }
+
+    return jsonify(result)
+
+
+def accept_return_transaction(return_transaction_id):
+    # Cari return transaction berdasarkan ID
+    return_transaction = (
+        db.session.query(ReturnTransaction)
+        .filter(ReturnTransaction.id == return_transaction_id)
+        .first()
+    )
+
+    if not return_transaction:
+        return jsonify({"error": "Return Transaction not found"}), 404
+
+    # Update status return menjadi 'accepted'
+    return_transaction.status = 'accepted'
+    db.session.commit()
+
+    return jsonify({"message": f"Return Transaction {return_transaction_id} has been accepted."}), 200
+
+
+def reject_return_transaction(return_transaction_id):
+    # Cari return transaction berdasarkan ID
+    return_transaction = (
+        db.session.query(ReturnTransaction)
+        .filter(ReturnTransaction.id == return_transaction_id)
+        .first()
+    )
+
+    if not return_transaction:
+        return jsonify({"error": "Return Transaction not found"}), 404
+
+    # Update status return menjadi 'rejected'
+    return_transaction.status = 'rejected'
+    db.session.commit()
+
+    return jsonify({"message": f"Return Transaction {return_transaction_id} has been rejected."}), 200
