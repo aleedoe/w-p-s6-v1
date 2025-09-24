@@ -13,18 +13,29 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@heroui/button";
 import { AcmeLogo } from "../icons/acmelogo";
 
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure
+} from "@heroui/modal";
+
 export const SidebarWrapper = () => {
   const pathname = usePathname();
   const { collapsed, setCollapsed } = useSidebarContext();
   const router = useRouter();
 
-  const handleLogout = () => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
+  const handleLogout = (onClose: () => void) => {
     // hapus token & user
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
-    // redirect ke login
-    router.push("/login");
+    onClose(); // tutup modal
+    router.push("/login"); // redirect ke login
   };
 
   return (
@@ -75,16 +86,39 @@ export const SidebarWrapper = () => {
             </SidebarMenu>
           </div>
           <div className={Sidebar.Footer()}>
-            <Button 
-              color="danger" 
-              className="w-full" 
-              onClick={handleLogout}
-            >
+            <Button color="danger" className="w-full" onPress={onOpen}>
               Log Out
             </Button>
           </div>
         </div>
       </div>
+
+      {/* Modal Konfirmasi Logout */}
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Konfirmasi Logout
+              </ModalHeader>
+              <ModalBody>
+                <p>Apakah Anda yakin ingin keluar dari akun ini?</p>
+              </ModalBody>
+              <ModalFooter>
+                <Button color="default" variant="light" onPress={onClose}>
+                  Batal
+                </Button>
+                <Button
+                  color="danger"
+                  onPress={() => handleLogout(onClose)}
+                >
+                  Ya, Logout
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </aside>
   );
 };
