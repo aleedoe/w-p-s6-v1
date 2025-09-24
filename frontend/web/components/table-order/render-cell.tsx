@@ -6,11 +6,11 @@ import { EyeIcon } from "../icons/table/eye-icon";
 import { DetailOrder } from "@/app/dashboard/orders/detail-order";
 
 interface Props {
-  user: any;
+  order: any;
   columnKey: string | React.Key;
 }
 
-export const RenderCell = ({ user, columnKey }: Props) => {
+export const RenderCell = ({ order, columnKey }: Props) => {
   // State untuk modal detail transaksi
   const {
     isOpen: isDetailOpen,
@@ -20,7 +20,7 @@ export const RenderCell = ({ user, columnKey }: Props) => {
   const [selectedTransactionId, setSelectedTransactionId] = useState<number | null>(null);
 
   // @ts-ignore
-  const cellValue = user[columnKey];
+  const cellValue = order[columnKey];
 
   // Handler untuk aksi terima transaksi
   const handleAcceptTransaction = (transactionId: number) => {
@@ -60,7 +60,7 @@ export const RenderCell = ({ user, columnKey }: Props) => {
           <Tooltip content="Lihat Detail Transaksi" color="secondary">
             <button
               onClick={() => {
-                setSelectedTransactionId(user.id_transaction);
+                setSelectedTransactionId(order.id_transaction);
                 onDetailOpen();
               }}
               className="text-gray-500 hover:text-blue-600 transition-colors duration-200"

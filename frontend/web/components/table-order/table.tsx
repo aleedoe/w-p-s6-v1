@@ -66,7 +66,7 @@ export const TableTransaction = () => {
             <TableRow key={item.id_transaction}>
               {(columnKey) => (
                 <TableCell>
-                  <RenderCell user={item as any} columnKey={columnKey} />
+                  <RenderCell order={item as any} columnKey={columnKey} />
                 </TableCell>
               )}
             </TableRow>
