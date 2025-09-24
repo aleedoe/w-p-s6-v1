@@ -67,6 +67,12 @@ export const SidebarWrapper = () => {
                 icon={<ShoppingCartIcon />}
                 href="/dashboard/orders"
               />
+              <SidebarItem
+                isActive={pathname === "/dashboard/returns"}
+                title="Returns"
+                icon={<ChangeLogIcon />}
+                href="/dashboard/returns"
+              />
             </SidebarMenu>
           </div>
           <div className={Sidebar.Footer()}>
