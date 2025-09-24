@@ -287,3 +287,31 @@ def get_transaction_detail(transaction_id):
     }
 
     return jsonify(result)
+
+
+def accept_transaction(transaction_id):
+    # Cari transaksi berdasarkan ID
+    transaction = db.session.query(Transaction).filter(Transaction.id == transaction_id).first()
+
+    if not transaction:
+        return jsonify({"error": "Transaction not found"}), 404
+
+    # Update status transaksi menjadi 'accepted'
+    transaction.status = 'accepted'
+    db.session.commit()
+
+    return jsonify({"message": f"Transaction {transaction_id} has been accepted."}), 200
+
+
+def reject_transaction(transaction_id):
+    # Cari transaksi berdasarkan ID
+    transaction = db.session.query(Transaction).filter(Transaction.id == transaction_id).first()
+
+    if not transaction:
+        return jsonify({"error": "Transaction not found"}), 404
+
+    # Update status transaksi menjadi 'rejected'
+    transaction.status = 'rejected'
+    db.session.commit()
+
+    return jsonify({"message": f"Transaction {transaction_id} has been rejected."}), 200

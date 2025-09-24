@@ -4,6 +4,7 @@ import { Tooltip } from "@heroui/tooltip";
 import { useDisclosure } from "@heroui/modal";
 import { EyeIcon } from "../icons/table/eye-icon";
 import { DetailOrder } from "@/app/dashboard/orders/detail-order";
+import { transactionService } from "@/services/transactionService";
 
 interface Props {
   order: any;
@@ -23,18 +24,33 @@ export const RenderCell = ({ order, columnKey }: Props) => {
   const cellValue = order[columnKey];
 
   // Handler untuk aksi terima transaksi
-  const handleAcceptTransaction = (transactionId: number) => {
-    console.log("Transaksi diterima:", transactionId);
-    alert(`Transaksi #${transactionId} berhasil diterima ✅`);
-    // TODO: Implement actual API call to accept transaction
+  const handleAcceptTransaction = async (transactionId: number) => {
+    try {
+      await transactionService.acceptTransaction(transactionId);
+      alert(`Transaksi #${transactionId} berhasil diterima ✅`);
+      onDetailClose(); // Tutup modal setelah aksi
+      setSelectedTransactionId(null); // Reset ID
+      window.location.reload();
+    } catch (error) {
+      console.error("Gagal menerima transaksi:", error);
+      alert("Gagal menerima transaksi. Silakan coba lagi.");
+    }
   };
 
   // Handler untuk aksi tolak transaksi
-  const handleRejectTransaction = (transactionId: number) => {
-    console.log("Transaksi ditolak:", transactionId);
-    alert(`Transaksi #${transactionId} ditolak ❌`);
-    // TODO: Implement actual API call to reject transaction
+  const handleRejectTransaction = async (transactionId: number) => {
+    try {
+      await transactionService.rejectTransaction(transactionId);
+      alert(`Transaksi #${transactionId} berhasil ditolak ❌`);
+      onDetailClose();
+      setSelectedTransactionId(null);
+      window.location.reload();
+    } catch (error) {
+      console.error("Gagal menolak transaksi:", error);
+      alert("Gagal menolak transaksi. Silakan coba lagi.");
+    }
   };
+
 
   switch (columnKey) {
     case "total_price":
