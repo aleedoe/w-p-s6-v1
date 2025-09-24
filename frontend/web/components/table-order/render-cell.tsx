@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { Tooltip } from "@heroui/tooltip";
+import { Chip } from "@heroui/chip";
 import { useDisclosure } from "@heroui/modal";
 import { EyeIcon } from "../icons/table/eye-icon";
 import { DetailOrder } from "@/app/dashboard/orders/detail-order";
@@ -51,8 +52,44 @@ export const RenderCell = ({ order, columnKey }: Props) => {
     }
   };
 
+  // Function untuk mendapatkan warna status
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return 'success';
+      case 'rejected':
+        return 'danger';
+      case 'pending':
+      default:
+        return 'warning';
+    }
+  };
+
+  // Function untuk mendapatkan label status
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return 'Diterima';
+      case 'rejected':
+        return 'Ditolak';
+      case 'pending':
+      default:
+        return 'Menunggu';
+    }
+  };
 
   switch (columnKey) {
+    case "status":
+      return (
+        <Chip 
+          color={getStatusColor(cellValue || 'pending')}
+          variant="flat"
+          size="sm"
+        >
+          {getStatusLabel(cellValue || 'pending')}
+        </Chip>
+      );
+
     case "total_price":
       return <span className="font-mono">Rp {Number(cellValue).toLocaleString("id-ID")}</span>;
 

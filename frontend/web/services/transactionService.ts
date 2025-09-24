@@ -8,6 +8,7 @@ export interface Transaction {
     total_items: number;
     total_price: number;
     transaction_date: string;
+    status?: string; // Tambahkan field status
 }
 
 export interface Product {

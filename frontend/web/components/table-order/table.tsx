@@ -18,6 +18,7 @@ import {
 const columns = [
   { name: "NO", uid: "no" },
   { name: "RESELLER NAME", uid: "reseller_name" },
+  { name: "STATUS", uid: "status" }, // Tambahkan kolom STATUS
   { name: "TOTAL ITEMS", uid: "total_items" },
   { name: "TOTAL PRICE", uid: "total_price" },
   { name: "TRANSACTION DATE", uid: "transaction_date" },

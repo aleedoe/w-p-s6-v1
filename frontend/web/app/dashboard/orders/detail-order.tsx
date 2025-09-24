@@ -37,6 +37,7 @@ interface TransactionDetail {
     total_items: number;
     total_price: number;
     transaction_date: string;
+    status?: string; // Tambahkan field status
 }
 
 interface TransactionDetailModalProps {
@@ -93,6 +94,30 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
         }
     };
 
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case 'accepted':
+                return 'success';
+            case 'rejected':
+                return 'danger';
+            case 'pending':
+            default:
+                return 'warning';
+        }
+    };
+
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case 'accepted':
+                return 'Diterima';
+            case 'rejected':
+                return 'Ditolak';
+            case 'pending':
+            default:
+                return 'Menunggu';
+        }
+    };
+
     return (
         <Modal
             isOpen={isOpen}
@@ -109,9 +134,18 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                                 Detail Transaksi
                             </h2>
                             {transactionDetail && (
-                                <p className="text-sm text-gray-400">
-                                    ID Transaksi: #{transactionDetail.id_transaction}
-                                </p>
+                                <div className="flex items-center gap-2">
+                                    <p className="text-sm text-gray-400">
+                                        ID Transaksi: #{transactionDetail.id_transaction}
+                                    </p>
+                                    <Chip
+                                        color={getStatusColor(transactionDetail.status || 'pending')}
+                                        variant="flat"
+                                        size="sm"
+                                    >
+                                        {getStatusLabel(transactionDetail.status || 'pending')}
+                                    </Chip>
+                                </div>
                             )}
                         </ModalHeader>
 
@@ -125,7 +159,7 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                                     {/* Transaction Info */}
                                     <Card className="bg-gray-800 border border-gray-700">
                                         <CardBody className="p-6">
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div>
                                                     <h3 className="text-sm font-medium text-gray-400 mb-1">
                                                         Nama Reseller
@@ -150,6 +184,17 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                                                             minute: "2-digit",
                                                         })}
                                                     </p>
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">
+                                                        Status
+                                                    </h3>
+                                                    <Chip
+                                                        color={getStatusColor(transactionDetail.status || 'pending')}
+                                                        variant="flat"
+                                                    >
+                                                        {getStatusLabel(transactionDetail.status || 'pending')}
+                                                    </Chip>
                                                 </div>
                                             </div>
 
@@ -271,20 +316,25 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                             >
                                 Tutup
                             </Button>
-                            <Button
-                                color="danger"
-                                variant="flat"
-                                onPress={handleReject}
-                                className="font-medium"
-                            >
-                                Tolak
-                            </Button>
-                            <Button
-                                className="bg-blue-600 hover:bg-blue-500 text-white font-medium"
-                                onPress={handleAccept}
-                            >
-                                Terima
-                            </Button>
+                            {/* Tombol Accept/Reject hanya muncul jika status pending */}
+                            {(!transactionDetail?.status || transactionDetail?.status === 'pending') && (
+                                <>
+                                    <Button
+                                        color="danger"
+                                        variant="flat"
+                                        onPress={handleReject}
+                                        className="font-medium"
+                                    >
+                                        Tolak
+                                    </Button>
+                                    <Button
+                                        className="bg-blue-600 hover:bg-blue-500 text-white font-medium"
+                                        onPress={handleAccept}
+                                    >
+                                        Terima
+                                    </Button>
+                                </>
+                            )}
                         </ModalFooter>
                     </>
                 )}

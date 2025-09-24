@@ -211,6 +211,7 @@ def get_all_transactions():
             Transaction.id.label("id_transaction"),
             Reseller.id.label("reseller_id"),
             Reseller.name.label("reseller_name"),
+            Transaction.status.label("status"),
             Transaction.created_at.label("transaction_date"),
             func.sum(DetailTransaction.quantity).label("total_items"),
             func.sum(DetailTransaction.quantity * Product.price).label("total_price")
@@ -229,6 +230,7 @@ def get_all_transactions():
             "id_transaction": t.id_transaction,
             "id_reseller": t.reseller_id,
             "reseller_name": t.reseller_name,
+            "status": t.status,
             "transaction_date": t.transaction_date.strftime("%Y-%m-%d %H:%M:%S"),
             "total_items": int(t.total_items) if t.total_items else 0,
             "total_price": float(t.total_price) if t.total_price else 0
