@@ -22,3 +22,9 @@ admin_bp.route('/return-transactions', methods=['GET'])(get_all_return_transacti
 admin_bp.route('/return-transactions/<int:return_transaction_id>', methods=['GET'])(get_return_transaction_detail)
 admin_bp.route('/return-transactions/<int:return_transaction_id>/accept', methods=['PUT'])(accept_return_transaction)
 admin_bp.route('/return-transactions/<int:return_transaction_id>/reject', methods=['PUT'])(reject_return_transaction)
+
+
+# Reseller routes
+from .controllers.reseller import reseller_login
+
+reseller_bp.route('/login', methods=['POST'])(reseller_login)
