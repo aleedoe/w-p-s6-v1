@@ -64,7 +64,6 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
     useEffect(() => {
         const fetchReturnTransactionDetail = async () => {
             if (!returnTransactionId || !isOpen) return;
-
             setLoading(true);
             try {
                 const detail = await returnService.getReturnTransactionById(
@@ -98,25 +97,25 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'accepted':
-                return 'success';
-            case 'rejected':
-                return 'danger';
-            case 'pending':
+            case "accepted":
+                return "success";
+            case "rejected":
+                return "danger";
+            case "pending":
             default:
-                return 'warning';
+                return "warning";
         }
     };
 
     const getStatusLabel = (status: string) => {
         switch (status) {
-            case 'accepted':
-                return 'Diterima';
-            case 'rejected':
-                return 'Ditolak';
-            case 'pending':
+            case "accepted":
+                return "Diterima";
+            case "rejected":
+                return "Ditolak";
+            case "pending":
             default:
-                return 'Menunggu';
+                return "Menunggu";
         }
     };
 
@@ -131,16 +130,16 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
             <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1 border-b border-gray-700">
-                            <h2 className="text-2xl font-bold ">
+                        <ModalHeader className="flex flex-col gap-1 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 Detail Return Transaksi
                             </h2>
                             {returnTransactionDetail && (
-                                <div className="flex items-center gap-2">
-                                    <p className="text-sm text-gray-400">
+                                <div className="flex items-center gap-3 flex-wrap">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                         ID Return: #{returnTransactionDetail.id_return_transaction}
                                     </p>
-                                    <p className="text-sm text-gray-400">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                         ID Transaksi Asal: #{returnTransactionDetail.id_transaction}
                                     </p>
                                     <Chip
@@ -162,22 +161,22 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
                             ) : returnTransactionDetail ? (
                                 <div className="space-y-6">
                                     {/* Return Transaction Info */}
-                                    <Card className="bg-gray-800 border border-gray-700">
+                                    <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                                         <CardBody className="p-6">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">
+                                                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                                                         Nama Reseller
                                                     </h3>
-                                                    <p className="text-lg font-semibold text-gray-100">
+                                                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                                                         {returnTransactionDetail.reseller_name}
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">
+                                                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                                                         Tanggal Return
                                                     </h3>
-                                                    <p className="text-lg font-semibold text-gray-100">
+                                                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                                                         {new Date(
                                                             returnTransactionDetail.return_date
                                                         ).toLocaleDateString("id-ID", {
@@ -191,7 +190,7 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">
+                                                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                                                         Status
                                                     </h3>
                                                     <Chip
@@ -203,18 +202,18 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
                                                 </div>
                                             </div>
 
-                                            <Divider className="my-4 bg-gray-700" />
+                                            <Divider className="my-4 bg-gray-200 dark:bg-gray-700" />
 
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-4">
                                                     <Chip color="primary" variant="flat">
                                                         {returnTransactionDetail.total_items} Items
                                                     </Chip>
-                                                    <Chip className="bg-gray-700">
+                                                    <Chip className="bg-gray-100 dark:bg-gray-700">
                                                         Total: Rp{" "}
-                                                        {Number(returnTransactionDetail.total_price).toLocaleString(
-                                                            "id-ID"
-                                                        )}
+                                                        {Number(
+                                                            returnTransactionDetail.total_price
+                                                        ).toLocaleString("id-ID")}
                                                     </Chip>
                                                 </div>
                                             </div>
@@ -223,28 +222,24 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
 
                                     {/* Products Table */}
                                     <div>
-                                        <h3 className="text-lg font-semibold mb-4 text-gray-100">
+                                        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
                                             Daftar Produk yang Direturn
                                         </h3>
-                                        <Table
-                                            aria-label="Return transaction products table"
-                                            className="min-w-full"
-                                            removeWrapper
-                                        >
+                                        <Table aria-label="Return transaction products table" removeWrapper>
                                             <TableHeader>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     NAMA PRODUK
                                                 </TableColumn>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     HARGA SATUAN
                                                 </TableColumn>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     QUANTITY
                                                 </TableColumn>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     SUBTOTAL
                                                 </TableColumn>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     ALASAN RETURN
                                                 </TableColumn>
                                             </TableHeader>
@@ -252,11 +247,11 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
                                                 {returnTransactionDetail.products.map((product) => (
                                                     <TableRow
                                                         key={product.id_product}
-                                                        className="hover:bg-gray-800/60"
+                                                        className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
                                                     >
                                                         <TableCell>
                                                             <div className="flex flex-col">
-                                                                <p className="font-medium text-gray-100">
+                                                                <p className="font-medium text-gray-900 dark:text-gray-100">
                                                                     {product.product_name}
                                                                 </p>
                                                                 <p className="text-xs text-gray-500">
@@ -265,30 +260,26 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
                                                             </div>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <span className="font-mono text-sm text-blue-400">
-                                                                Rp{" "}
-                                                                {Number(product.price).toLocaleString("id-ID")}
+                                                            <span className="font-mono text-sm text-blue-600 dark:text-blue-400">
+                                                                Rp {Number(product.price).toLocaleString("id-ID")}
                                                             </span>
                                                         </TableCell>
                                                         <TableCell>
                                                             <Chip
                                                                 size="sm"
-                                                                className="bg-gray-700 text-gray-200"
+                                                                className="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
                                                             >
                                                                 {product.quantity}x
                                                             </Chip>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <span className="font-semibold font-mono">
-                                                                Rp{" "}
-                                                                {Number(product.subtotal).toLocaleString(
-                                                                    "id-ID"
-                                                                )}
+                                                            <span className="font-semibold font-mono text-gray-900 dark:text-gray-100">
+                                                                Rp {Number(product.subtotal).toLocaleString("id-ID")}
                                                             </span>
                                                         </TableCell>
                                                         <TableCell>
                                                             <div className="max-w-xs">
-                                                                <p className="text-sm text-gray-300 break-words">
+                                                                <p className="text-sm text-gray-700 dark:text-gray-300 break-words">
                                                                     {product.reason || "Tidak ada alasan"}
                                                                 </p>
                                                             </div>
@@ -300,17 +291,17 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
                                     </div>
 
                                     {/* Summary */}
-                                    <Card className="bg-gray-800 border border-gray-700">
+                                    <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                                         <CardBody className="p-4">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-lg font-medium text-gray-300">
+                                                <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
                                                     Total Return:
                                                 </span>
-                                                <span className="text-2xl font-bold font-mono">
+                                                <span className="text-2xl font-bold font-mono text-gray-900 dark:text-gray-100">
                                                     Rp{" "}
-                                                    {Number(returnTransactionDetail.total_price).toLocaleString(
-                                                        "id-ID"
-                                                    )}
+                                                    {Number(
+                                                        returnTransactionDetail.total_price
+                                                    ).toLocaleString("id-ID")}
                                                 </span>
                                             </div>
                                         </CardBody>
@@ -323,15 +314,15 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
                             )}
                         </ModalBody>
 
-                        <ModalFooter className="flex gap-2 border-t border-gray-700">
+                        <ModalFooter className="flex gap-2 border-t border-gray-200 dark:border-gray-700">
                             <Button
                                 variant="light"
                                 onPress={onClose}
-                                className="text-gray-300"
+                                className="text-gray-600 dark:text-gray-300"
                             >
                                 Tutup
                             </Button>
-                            {returnTransactionDetail?.status === 'pending' && (
+                            {returnTransactionDetail?.status === "pending" && (
                                 <>
                                     <Button
                                         color="danger"
