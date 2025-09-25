@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card } from "@heroui/card"
 import { Input } from "@heroui/input"
 import { Button } from "@heroui/button"
-import {Form} from "@heroui/form";
+import { Form } from "@heroui/form"
 
 export default function LoginPage() {
     const router = useRouter()
@@ -48,9 +48,13 @@ export default function LoginPage() {
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-slate-100 to-slate-300">
-            <Card className="p-8 w-full max-w-md shadow-2xl">
-                <h1 className="text-2xl font-bold text-center mb-6">Admin Login</h1>
+        <div className="flex items-center justify-center min-h-screen 
+        bg-gradient-to-br from-slate-100 to-slate-300 
+        dark:from-gray-900 dark:to-gray-800 transition-colors duration-300">
+            <Card className="p-8 w-full max-w-md shadow-2xl bg-white dark:bg-gray-900">
+                <h1 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-gray-100">
+                    Admin Login
+                </h1>
                 <Form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                     <Input
                         isRequired
@@ -59,7 +63,11 @@ export default function LoginPage() {
                         label="Email"
                         labelPlacement="outside"
                         placeholder="Enter your email"
-                        value={"admin@gmail.com"}
+                        defaultValue="admin@gmail.com"
+                        classNames={{
+                            label: "text-gray-700 dark:text-gray-300",
+                            input: "dark:text-white",
+                        }}
                     />
                     <Input
                         isRequired
@@ -68,7 +76,11 @@ export default function LoginPage() {
                         label="Password"
                         labelPlacement="outside"
                         placeholder="Enter your password"
-                        value={"admin123"}
+                        defaultValue="admin123"
+                        classNames={{
+                            label: "text-gray-700 dark:text-gray-300",
+                            input: "dark:text-white",
+                        }}
                     />
 
                     {error && <p className="text-red-500 text-sm">{error}</p>}
