@@ -37,7 +37,7 @@ interface TransactionDetail {
     total_items: number;
     total_price: number;
     transaction_date: string;
-    status?: string; // Tambahkan field status
+    status?: string;
 }
 
 interface TransactionDetailModalProps {
@@ -62,12 +62,9 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
     useEffect(() => {
         const fetchTransactionDetail = async () => {
             if (!transactionId || !isOpen) return;
-
             setLoading(true);
             try {
-                const detail = await transactionService.getTransactionById(
-                    transactionId
-                );
+                const detail = await transactionService.getTransactionById(transactionId);
                 setTransactionDetail(detail as any);
             } catch (error) {
                 console.error("Failed to fetch transaction detail:", error);
@@ -96,25 +93,25 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'accepted':
-                return 'success';
-            case 'rejected':
-                return 'danger';
-            case 'pending':
+            case "accepted":
+                return "success";
+            case "rejected":
+                return "danger";
+            case "pending":
             default:
-                return 'warning';
+                return "warning";
         }
     };
 
     const getStatusLabel = (status: string) => {
         switch (status) {
-            case 'accepted':
-                return 'Diterima';
-            case 'rejected':
-                return 'Ditolak';
-            case 'pending':
+            case "accepted":
+                return "Diterima";
+            case "rejected":
+                return "Ditolak";
+            case "pending":
             default:
-                return 'Menunggu';
+                return "Menunggu";
         }
     };
 
@@ -129,21 +126,21 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
             <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1 border-b border-gray-700">
-                            <h2 className="text-2xl font-bold ">
+                        <ModalHeader className="flex flex-col gap-1 border-b border-gray-200 dark:border-gray-700">
+                            <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
                                 Detail Transaksi
                             </h2>
                             {transactionDetail && (
                                 <div className="flex items-center gap-2">
-                                    <p className="text-sm text-gray-400">
+                                    <p className="text-sm text-gray-500 dark:text-gray-400">
                                         ID Transaksi: #{transactionDetail.id_transaction}
                                     </p>
                                     <Chip
-                                        color={getStatusColor(transactionDetail.status || 'pending')}
+                                        color={getStatusColor(transactionDetail.status || "pending")}
                                         variant="flat"
                                         size="sm"
                                     >
-                                        {getStatusLabel(transactionDetail.status || 'pending')}
+                                        {getStatusLabel(transactionDetail.status || "pending")}
                                     </Chip>
                                 </div>
                             )}
@@ -157,22 +154,22 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                             ) : transactionDetail ? (
                                 <div className="space-y-6">
                                     {/* Transaction Info */}
-                                    <Card className="bg-gray-800 border border-gray-700">
+                                    <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                                         <CardBody className="p-6">
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">
+                                                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                                                         Nama Reseller
                                                     </h3>
-                                                    <p className="text-lg font-semibold text-gray-100">
+                                                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                                                         {transactionDetail.reseller_name}
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">
+                                                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                                                         Tanggal Transaksi
                                                     </h3>
-                                                    <p className="text-lg font-semibold text-gray-100">
+                                                    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                                                         {new Date(
                                                             transactionDetail.transaction_date
                                                         ).toLocaleDateString("id-ID", {
@@ -186,26 +183,30 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                                                     </p>
                                                 </div>
                                                 <div>
-                                                    <h3 className="text-sm font-medium text-gray-400 mb-1">
+                                                    <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">
                                                         Status
                                                     </h3>
                                                     <Chip
-                                                        color={getStatusColor(transactionDetail.status || 'pending')}
+                                                        color={getStatusColor(
+                                                            transactionDetail.status || "pending"
+                                                        )}
                                                         variant="flat"
                                                     >
-                                                        {getStatusLabel(transactionDetail.status || 'pending')}
+                                                        {getStatusLabel(
+                                                            transactionDetail.status || "pending"
+                                                        )}
                                                     </Chip>
                                                 </div>
                                             </div>
 
-                                            <Divider className="my-4 bg-gray-700" />
+                                            <Divider className="my-4 bg-gray-200 dark:bg-gray-700" />
 
                                             <div className="flex justify-between items-center">
                                                 <div className="flex items-center gap-4">
                                                     <Chip color="primary" variant="flat">
                                                         {transactionDetail.total_items} Items
                                                     </Chip>
-                                                    <Chip className="bg-gray-700">
+                                                    <Chip className="bg-gray-100 dark:bg-gray-700">
                                                         Total: Rp{" "}
                                                         {Number(transactionDetail.total_price).toLocaleString(
                                                             "id-ID"
@@ -218,25 +219,21 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
 
                                     {/* Products Table */}
                                     <div>
-                                        <h3 className="text-lg font-semibold mb-4 text-gray-100">
+                                        <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
                                             Daftar Produk
                                         </h3>
-                                        <Table
-                                            aria-label="Transaction products table"
-                                            className="min-w-full"
-                                            removeWrapper
-                                        >
+                                        <Table aria-label="Transaction products table" removeWrapper>
                                             <TableHeader>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     NAMA PRODUK
                                                 </TableColumn>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     HARGA SATUAN
                                                 </TableColumn>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     QUANTITY
                                                 </TableColumn>
-                                                <TableColumn className="bg-gray-800 text-gray-300">
+                                                <TableColumn className="bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                                                     SUBTOTAL
                                                 </TableColumn>
                                             </TableHeader>
@@ -244,11 +241,11 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                                                 {transactionDetail.products.map((product) => (
                                                     <TableRow
                                                         key={product.id_product}
-                                                        className="hover:bg-gray-800/60"
+                                                        className="hover:bg-gray-50 dark:hover:bg-gray-800/60"
                                                     >
                                                         <TableCell>
                                                             <div className="flex flex-col">
-                                                                <p className="font-medium text-gray-100">
+                                                                <p className="font-medium text-gray-900 dark:text-gray-100">
                                                                     {product.product_name}
                                                                 </p>
                                                                 <p className="text-xs text-gray-500">
@@ -257,25 +254,21 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                                                             </div>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <span className="font-mono text-sm text-blue-400">
-                                                                Rp{" "}
-                                                                {Number(product.price).toLocaleString("id-ID")}
+                                                            <span className="font-mono text-sm text-blue-600 dark:text-blue-400">
+                                                                Rp {Number(product.price).toLocaleString("id-ID")}
                                                             </span>
                                                         </TableCell>
                                                         <TableCell>
                                                             <Chip
                                                                 size="sm"
-                                                                className="bg-gray-700 text-gray-200"
+                                                                className="bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-200"
                                                             >
                                                                 {product.quantity}x
                                                             </Chip>
                                                         </TableCell>
                                                         <TableCell>
-                                                            <span className="font-semibold font-mono">
-                                                                Rp{" "}
-                                                                {Number(product.subtotal).toLocaleString(
-                                                                    "id-ID"
-                                                                )}
+                                                            <span className="font-semibold font-mono text-gray-900 dark:text-gray-100">
+                                                                Rp {Number(product.subtotal).toLocaleString("id-ID")}
                                                             </span>
                                                         </TableCell>
                                                     </TableRow>
@@ -285,13 +278,13 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                                     </div>
 
                                     {/* Summary */}
-                                    <Card className="bg-gray-800 border border-gray-700">
+                                    <Card className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                                         <CardBody className="p-4">
                                             <div className="flex justify-between items-center">
-                                                <span className="text-lg font-medium text-gray-300">
+                                                <span className="text-lg font-medium text-gray-700 dark:text-gray-300">
                                                     Total Keseluruhan:
                                                 </span>
-                                                <span className="text-2xl font-bold font-mono">
+                                                <span className="text-2xl font-bold font-mono text-gray-900 dark:text-gray-100">
                                                     Rp{" "}
                                                     {Number(transactionDetail.total_price).toLocaleString(
                                                         "id-ID"
@@ -308,19 +301,18 @@ export const DetailOrder: React.FC<TransactionDetailModalProps> = ({
                             )}
                         </ModalBody>
 
-                        <ModalFooter className="flex gap-2 border-t border-gray-700">
+                        <ModalFooter className="flex gap-2 border-t border-gray-200 dark:border-gray-700">
                             <Button
                                 variant="light"
                                 onPress={onClose}
-                                className="text-gray-300"
+                                className="text-gray-600 dark:text-gray-300"
                             >
                                 Tutup
                             </Button>
-                            {/* Tombol Accept/Reject hanya muncul jika status pending atau undefined */}
                             {(!transactionDetail?.status ||
-                                transactionDetail?.status === 'pending' ||
+                                transactionDetail?.status === "pending" ||
                                 transactionDetail?.status === null ||
-                                transactionDetail?.status === '') && (
+                                transactionDetail?.status === "") && (
                                     <>
                                         <Button
                                             color="danger"
