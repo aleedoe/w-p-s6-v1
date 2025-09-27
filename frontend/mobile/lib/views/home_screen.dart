@@ -3,11 +3,36 @@ import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
   final List<Map<String, dynamic>> dummyData = [
-    {'id': 'TXN001', 'nama': 'Pembelian Produk A', 'tanggal': '2024-01-15', 'total': 'Rp 150.000'},
-    {'id': 'TXN002', 'nama': 'Pembelian Produk B', 'tanggal': '2024-01-14', 'total': 'Rp 250.000'},
-    {'id': 'TXN003', 'nama': 'Pembelian Produk C', 'tanggal': '2024-01-13', 'total': 'Rp 100.000'},
-    {'id': 'TXN004', 'nama': 'Pembelian Produk D', 'tanggal': '2024-01-12', 'total': 'Rp 300.000'},
-    {'id': 'TXN005', 'nama': 'Pembelian Produk E', 'tanggal': '2024-01-11', 'total': 'Rp 175.000'},
+    {
+      'id': 'TXN001',
+      'nama': 'Pembelian Produk A',
+      'tanggal': '2024-01-15',
+      'total': 'Rp 150.000',
+    },
+    {
+      'id': 'TXN002',
+      'nama': 'Pembelian Produk B',
+      'tanggal': '2024-01-14',
+      'total': 'Rp 250.000',
+    },
+    {
+      'id': 'TXN003',
+      'nama': 'Pembelian Produk C',
+      'tanggal': '2024-01-13',
+      'total': 'Rp 100.000',
+    },
+    {
+      'id': 'TXN004',
+      'nama': 'Pembelian Produk D',
+      'tanggal': '2024-01-12',
+      'total': 'Rp 300.000',
+    },
+    {
+      'id': 'TXN005',
+      'nama': 'Pembelian Produk E',
+      'tanggal': '2024-01-11',
+      'total': 'Rp 175.000',
+    },
   ];
 
   @override
@@ -26,10 +51,7 @@ class HomePage extends StatelessWidget {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF2196F3),
-                      Color(0xFF21CBF3),
-                    ],
+                    colors: [Color(0xFF2196F3), Color(0xFF21CBF3)],
                   ),
                   borderRadius: BorderRadius.only(
                     bottomLeft: Radius.circular(24),
@@ -76,7 +98,7 @@ class HomePage extends StatelessWidget {
                   ],
                 ),
               ),
-              
+
               // Menu Grid
               Padding(
                 padding: EdgeInsets.all(24),
@@ -101,9 +123,15 @@ class HomePage extends StatelessWidget {
                       childAspectRatio: 1.2,
                       children: [
                         _buildMenuCard(
-                          'Produk',
+                          'Stok',
                           Icons.inventory_2,
                           Color(0xFF4CAF50),
+                          () {},
+                        ),
+                        _buildMenuCard(
+                          'Stok Keluar',
+                          Icons.inventory_outlined,
+                          Color(0xFF9C27B0),
                           () {},
                         ),
                         _buildMenuCard(
@@ -118,17 +146,11 @@ class HomePage extends StatelessWidget {
                           Color(0xFFF44336),
                           () {},
                         ),
-                        _buildMenuCard(
-                          'Histori',
-                          Icons.history,
-                          Color(0xFF9C27B0),
-                          () {},
-                        ),
                       ],
                     ),
-                    
+
                     SizedBox(height: 32),
-                    
+
                     // Data Table
                     Text(
                       'Transaksi Terbaru',
@@ -139,7 +161,7 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 16),
-                    
+
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -209,64 +231,68 @@ class HomePage extends StatelessWidget {
                               ],
                             ),
                           ),
-                          
+
                           // Table Data
-                          ...dummyData.map((data) => Container(
-                            padding: EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(
-                                  color: Color(0xFFE0E0E0),
-                                  width: 1,
-                                ),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    data['id'],
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF666666),
+                          ...dummyData
+                              .map(
+                                (data) => Container(
+                                  padding: EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: Color(0xFFE0E0E0),
+                                        width: 1,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    data['nama'],
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF333333),
-                                    ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          data['id'],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF666666),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 3,
+                                        child: Text(
+                                          data['nama'],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF333333),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          data['tanggal'],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF666666),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        flex: 2,
+                                        child: Text(
+                                          data['total'],
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF4CAF50),
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    data['tanggal'],
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF666666),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 2,
-                                  child: Text(
-                                    data['total'],
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: Color(0xFF4CAF50),
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )).toList(),
+                              )
+                              .toList(),
                         ],
                       ),
                     ),
@@ -280,7 +306,12 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuCard(String title, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildMenuCard(
+    String title,
+    IconData icon,
+    Color color,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -304,11 +335,7 @@ class HomePage extends StatelessWidget {
                 color: color.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                icon,
-                size: 32,
-                color: color,
-              ),
+              child: Icon(icon, size: 32, color: color),
             ),
             SizedBox(height: 12),
             Text(
