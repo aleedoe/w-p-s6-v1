@@ -344,46 +344,7 @@ class StockPage extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF4CAF50),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {
-                              // Edit product action
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Color(0xFF2196F3).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.edit,
-                                color: Color(0xFF2196F3),
-                                size: 16,
-                              ),
-                            ),
-                          ),
-                          SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () {
-                              // Delete product action
-                            },
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Color(0xFFF44336).withOpacity(0.1),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Icon(
-                                Icons.delete,
-                                color: Color(0xFFF44336),
-                                size: 16,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                      )
                     ],
                   ),
                 ],
