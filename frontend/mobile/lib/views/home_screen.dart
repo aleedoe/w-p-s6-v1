@@ -1,5 +1,6 @@
-// Home Page
+// Updated Home Page with Navigation
 import 'package:flutter/material.dart';
+import 'package:mobile/views/stock/stock_screen.dart';
 
 class HomePage extends StatelessWidget {
   final List<Map<String, dynamic>> dummyData = [
@@ -123,24 +124,35 @@ class HomePage extends StatelessWidget {
                       childAspectRatio: 1.2,
                       children: [
                         _buildMenuCard(
+                          context,
                           'Stok',
                           Icons.inventory_2,
                           Color(0xFF4CAF50),
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StockPage(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuCard(
+                          context,
                           'Stok Keluar',
                           Icons.inventory_outlined,
                           Color(0xFF9C27B0),
                           () {},
                         ),
                         _buildMenuCard(
+                          context,
                           'Order',
                           Icons.shopping_cart,
                           Color(0xFFFF9800),
                           () {},
                         ),
                         _buildMenuCard(
+                          context,
                           'Return',
                           Icons.keyboard_return,
                           Color(0xFFF44336),
@@ -307,6 +319,7 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildMenuCard(
+    BuildContext context,
     String title,
     IconData icon,
     Color color,
