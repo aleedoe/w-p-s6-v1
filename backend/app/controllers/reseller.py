@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
-from ..models import Reseller, db, Product, Category, DetailTransaction, Image
+from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction
 
 
 def reseller_login():
@@ -65,11 +65,12 @@ def res_get_product_detail(product_id):
     return jsonify(result), 200
 
 
-def res_get_stocks():
+def res_get_stocks(id_reseller: int):
     # Query dengan join
     detail_transactions = (
         db.session.query(
             DetailTransaction.id.label("id_detail_transaction"),
+            Transaction.id_reseller.label("id_reseller"),
             Product.id.label("id_product"),
             DetailTransaction.quantity.label("quantity"),
             Product.name.label("product_name"),
@@ -77,12 +78,17 @@ def res_get_stocks():
             Product.description.label("description"),
             Category.name.label("category_name")
         )
+        .join(Transaction, DetailTransaction.id_transaction == Transaction.id)
         .join(Product, DetailTransaction.id_product == Product.id)
         .join(Category, Product.id_category == Category.id)
+        .filter(Transaction.id_reseller == id_reseller)
         .all()
     )
 
     result = []
+    total_products = 0
+    total_quantity = 0
+
     for dt in detail_transactions:
         # Ambil semua gambar produk
         images = (
@@ -92,8 +98,12 @@ def res_get_stocks():
         )
         image_list = [img.name for img in images]
 
+        total_products += 1
+        total_quantity += dt.quantity
+
         result.append({
             "id_detail_transaction": dt.id_detail_transaction,
+            "id_reseller": dt.id_reseller,
             "id_product": dt.id_product,
             "quantity": dt.quantity,
             "product_name": dt.product_name,
@@ -103,4 +113,11 @@ def res_get_stocks():
             "images": image_list
         })
 
-    return jsonify(result)
+    return jsonify({
+        "id_reseller": id_reseller,
+        "total_products": total_products,   # jumlah produk unik di detail transaksi
+        "total_quantity": total_quantity,   # total kuantitas semua produk di detail transaksi
+        "details": result
+    })
+
+
