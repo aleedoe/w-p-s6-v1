@@ -5,7 +5,6 @@ class ResellerStockOut(db.Model):
     
     id = db.Column(db.Integer, primary_key=True)
     id_reseller = db.Column(db.Integer, db.ForeignKey('resellers.id'), nullable=False)
-    note = db.Column(db.String(255))  # contoh: "penjualan ke customer A"
     created_at = db.Column(db.DateTime, server_default=db.func.now())
 
     reseller = db.relationship('Reseller', backref='stock_outs')
