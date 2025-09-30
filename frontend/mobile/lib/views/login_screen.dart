@@ -4,7 +4,6 @@ import 'package:mobile/views/home_screen.dart';
 import '../repositories/auth_repository.dart';
 import '../services/api_client.dart';
 import '../models/auth_models.dart';
-import '../main.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
