@@ -1,6 +1,7 @@
 // lib/repositories/stock_repository.dart
-import '../core/config/api_config.dart';
-import '../models/stock_response.dart';
+import 'package:mobile/config/api_config.dart';
+import 'package:mobile/models/stock_detail.dart';
+
 import '../services/api_client.dart';
 
 class StockRepository {
