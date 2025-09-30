@@ -1,5 +1,6 @@
 // lib/views/login_screen.dart
 import 'package:flutter/material.dart';
+import 'package:mobile/views/home_screen.dart';
 import '../repositories/auth_repository.dart';
 import '../services/api_client.dart';
 import '../models/auth_models.dart';
@@ -309,9 +310,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (mounted) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(
-              builder: (context) => MainApp(user: authResponse.user),
-            ),
+            MaterialPageRoute(builder: (context) => HomePage()),
           );
 
           // Show success message
