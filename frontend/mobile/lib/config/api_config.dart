@@ -1,10 +1,10 @@
 class ApiConfig {
-  static const String baseUrl = 'https://your-api-domain.com/api'; // Ganti dengan URL API Anda
+  static const String baseUrl = 'http://127.0.0.1:5000/api/reseller'; // Ganti dengan URL API Anda
 
   // Auth endpoints
-  static const String loginEndpoint = '/auth/login';
-  static const String registerEndpoint = '/auth/register';
-  static const String logoutEndpoint = '/auth/logout';
+  static const String loginEndpoint = '/login';
+  static const String registerEndpoint = '/register';
+  static const String logoutEndpoint = '/logout';
 
   // Stock (contoh resource lain)
   static const String stockEndpoint = '/stock';
