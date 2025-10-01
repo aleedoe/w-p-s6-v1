@@ -227,28 +227,6 @@ class _StockPageState extends State<StockPage> {
                     ),
                   ],
                 ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _searchProducts,
-                  decoration: InputDecoration(
-                    hintText: 'Cari produk...',
-                    prefixIcon: Icon(Icons.search, color: Color(0xFF666666)),
-                    suffixIcon: _searchController.text.isNotEmpty
-                        ? IconButton(
-                            icon: Icon(Icons.clear, color: Color(0xFF666666)),
-                            onPressed: () {
-                              _searchController.clear();
-                              _searchProducts('');
-                            },
-                          )
-                        : null,
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                  ),
-                ),
               ),
             ),
 

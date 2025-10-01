@@ -7,7 +7,7 @@ class ApiConfig {
   static const String logoutEndpoint = '/logout';
 
   // Stock (contoh resource lain)
-  static const String stockEndpoint = '/stock';
+  static const String stockEndpoint = '/stocks/1';
 
   // Timeout configuration
   static const Duration connectionTimeout = Duration(seconds: 30);
