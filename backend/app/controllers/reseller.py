@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
+from sqlalchemy import func
 from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction
 
 
@@ -121,3 +122,36 @@ def res_get_stocks(id_reseller: int):
     })
 
 
+def res_get_transactions(id_reseller: int):
+    transactions = (
+        db.session.query(
+            Transaction.id.label("id_transaction"),
+            Transaction.status.label("status"),
+            Transaction.created_at.label("created_at"),
+            # jumlah produk unik berdasarkan id_product
+            func.count(func.distinct(DetailTransaction.id_product)).label("total_products"),
+            # total harga = sum(quantity * price)
+            func.sum(DetailTransaction.quantity * Product.price).label("total_price")
+        )
+        .join(DetailTransaction, DetailTransaction.id_transaction == Transaction.id)
+        .join(Product, DetailTransaction.id_product == Product.id)
+        .filter(Transaction.id_reseller == id_reseller)
+        .group_by(Transaction.id, Transaction.status, Transaction.created_at)
+        .order_by(Transaction.created_at.desc())
+        .all()
+    )
+
+    result = []
+    for t in transactions:
+        result.append({
+            "id_transaction": t.id_transaction,
+            "status": t.status,
+            "created_at": t.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+            "total_products": int(t.total_products),  # jumlah produk unik
+            "total_price": float(t.total_price) if t.total_price else 0.0
+        })
+
+    return jsonify({
+        "id_reseller": id_reseller,
+        "transactions": result
+    })
