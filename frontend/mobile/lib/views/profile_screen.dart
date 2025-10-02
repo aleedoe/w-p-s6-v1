@@ -1,5 +1,6 @@
 // Akun Page
 import 'package:flutter/material.dart';
+import 'package:mobile/views/custom_navbar.dart';
 import 'package:mobile/views/login_screen.dart';
 
 class AkunPage extends StatelessWidget {
@@ -122,6 +123,7 @@ class AkunPage extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: const CustomNavBar(selectedIndex: 2),
     );
   }
 

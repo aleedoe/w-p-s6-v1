@@ -1,5 +1,6 @@
 // Laporan Page
 import 'package:flutter/material.dart';
+import 'package:mobile/views/custom_navbar.dart';
 
 class LaporanPage extends StatelessWidget {
   @override
@@ -157,6 +158,7 @@ class LaporanPage extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: const CustomNavBar(selectedIndex: 1),
     );
   }
 

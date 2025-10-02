@@ -1,5 +1,6 @@
 // Updated Home Page with Navigation
 import 'package:flutter/material.dart';
+import 'package:mobile/views/custom_navbar.dart';
 import 'package:mobile/views/stock/stock_screen.dart';
 
 class HomePage extends StatelessWidget {
@@ -315,6 +316,7 @@ class HomePage extends StatelessWidget {
           ),
         ),
       ),
+      bottomNavigationBar: const CustomNavBar(selectedIndex: 0),
     );
   }
 
