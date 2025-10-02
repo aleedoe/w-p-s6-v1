@@ -155,3 +155,49 @@ def res_get_transactions(id_reseller: int):
         "id_reseller": id_reseller,
         "transactions": result
     })
+
+
+def res_get_transaction_detail(id_reseller: int, id_transaction: int):
+    details = (
+        db.session.query(
+            DetailTransaction.id.label("id_detail_transaction"),
+            Product.id.label("id_product"),
+            Product.name.label("product_name"),
+            Product.price.label("price"),
+            DetailTransaction.quantity.label("quantity"),
+            (DetailTransaction.quantity * Product.price).label("total_price")
+        )
+        .join(Transaction, DetailTransaction.id_transaction == Transaction.id)
+        .join(Product, DetailTransaction.id_product == Product.id)
+        .filter(Transaction.id_reseller == id_reseller)
+        .filter(Transaction.id == id_transaction)
+        .all()
+    )
+
+    result = []
+    total_products = 0
+    total_quantity = 0
+    total_price = 0
+
+    for d in details:
+        result.append({
+            "id_detail_transaction": d.id_detail_transaction,
+            "id_product": d.id_product,
+            "product_name": d.product_name,
+            "price": float(d.price),
+            "quantity": d.quantity,
+            "total_price": float(d.total_price)
+        })
+
+        total_products += 1
+        total_quantity += d.quantity
+        total_price += d.total_price
+
+    return jsonify({
+        "id_reseller": id_reseller,
+        "id_transaction": id_transaction,
+        "total_products": total_products,   # jumlah produk unik dalam transaksi ini
+        "total_quantity": total_quantity,   # total kuantitas semua produk
+        "total_price": float(total_price),  # total harga semua produk
+        "details": result
+    })
