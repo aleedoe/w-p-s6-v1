@@ -6,8 +6,11 @@ class ApiConfig {
   static const String registerEndpoint = '/register';
   static const String logoutEndpoint = '/logout';
 
-  // Stock (contoh resource lain)
+  // Stock endpoints
   static const String stockEndpoint = '/stocks/1';
+
+  // Transaction endpoints
+  static const String transactionEndpoint = '/transactions'; // Endpoint base untuk transaksi
 
   // Timeout configuration
   static const Duration connectionTimeout = Duration(seconds: 30);
