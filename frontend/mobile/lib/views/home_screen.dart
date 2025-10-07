@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/views/custom_navbar.dart';
 import 'package:mobile/views/stock/stock_screen.dart';
+import 'package:mobile/views/order/order_page.dart';
 
 class HomePage extends StatelessWidget {
   final List<Map<String, dynamic>> dummyData = [
@@ -150,7 +151,14 @@ class HomePage extends StatelessWidget {
                           'Order',
                           Icons.shopping_cart,
                           Color(0xFFFF9800),
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => OrderPage(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuCard(
                           context,
