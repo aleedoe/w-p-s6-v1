@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../models/transaction.dart';
 import '../../repositories/transaction_repository.dart';
 import './transaction_detail_page.dart';
+import './create_order_page.dart';
 
 class OrderPage extends StatefulWidget {
   final int? resellerId;
@@ -216,7 +217,7 @@ class _OrderPageState extends State<OrderPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Riwayat Pesanan',
+                              'Manajemen Order',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 24,
@@ -224,7 +225,7 @@ class _OrderPageState extends State<OrderPage> {
                               ),
                             ),
                             Text(
-                              'Kelola transaksi Anda',
+                              'Kelola order Anda',
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: 14,
@@ -279,17 +280,6 @@ class _OrderPageState extends State<OrderPage> {
                       offset: Offset(0, 2),
                     ),
                   ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _searchTransactions,
-                  decoration: InputDecoration(
-                    hintText: 'Cari nomor transaksi...',
-                    hintStyle: TextStyle(color: Color(0xFF999999)),
-                    prefixIcon: Icon(Icons.search, color: Color(0xFF2196F3)),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.all(16),
-                  ),
                 ),
               ),
             ),
@@ -502,6 +492,25 @@ class _OrderPageState extends State<OrderPage> {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // Navigate to create order page; refresh when returning if created
+          final created = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CreateOrderPage(
+                resellerId: widget.resellerId,
+              ),
+            ),
+          );
+
+          if (created == true) {
+            await _refreshTransactions();
+          }
+        },
+        backgroundColor: Color(0xFF2196F3),
+        child: Icon(Icons.add),
+      )
     );
   }
 
