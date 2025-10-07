@@ -2,7 +2,7 @@ from flask import request, jsonify
 from flask_jwt_extended import create_access_token
 from sqlalchemy import func
 from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction
-
+from sqlalchemy.exc import SQLAlchemyError
 
 def reseller_login():
     data = request.get_json()
@@ -201,3 +201,91 @@ def res_get_transaction_detail(id_reseller: int, id_transaction: int):
         "total_price": float(total_price),  # total harga semua produk
         "details": result
     })
+
+
+def res_create_transaction(id_reseller: int):
+
+    data = request.get_json()
+
+    # Validasi input
+    if not data or "details" not in data or not isinstance(data["details"], list):
+        return jsonify({"message": "Invalid request body"}), 400
+
+    details_data = data["details"]
+
+    if len(details_data) == 0:
+        return jsonify({"message": "Detail transaksi tidak boleh kosong"}), 400
+
+    try:
+        # 1️⃣ Buat transaksi utama
+        transaction = Transaction(
+            id_reseller=id_reseller,
+            status="pending"
+        )
+        db.session.add(transaction)
+        db.session.flush()  # supaya ID transaksi langsung tersedia
+
+        total_price = 0
+        detail_records = []
+
+        # 2️⃣ Proses setiap produk dalam detail transaksi
+        for item in details_data:
+            id_product = item.get("id_product")
+            quantity = item.get("quantity")
+
+            if not id_product or not quantity or quantity <= 0:
+                db.session.rollback()
+                return jsonify({"message": "id_product dan quantity wajib diisi dengan benar"}), 400
+
+            # Ambil data produk
+            product = Product.query.get(id_product)
+            if not product:
+                db.session.rollback()
+                return jsonify({"message": f"Produk dengan ID {id_product} tidak ditemukan"}), 404
+
+            # Cek stok
+            if product.quantity < quantity:
+                db.session.rollback()
+                return jsonify({"message": f"Stok produk '{product.name}' tidak mencukupi"}), 400
+
+            # Kurangi stok produk
+            product.quantity -= quantity
+
+            # Hitung total harga per produk
+            total_price_item = product.price * quantity
+            total_price += total_price_item
+
+            # Buat detail transaksi
+            detail = DetailTransaction(
+                id_transaction=transaction.id,
+                id_product=id_product,
+                quantity=quantity
+            )
+            detail_records.append({
+                "id_product": id_product,
+                "product_name": product.name,
+                "price": float(product.price),
+                "quantity": quantity,
+                "total_price": float(total_price_item)
+            })
+            db.session.add(detail)
+
+        # 3️⃣ Commit semua perubahan
+        db.session.commit()
+
+        # 4️⃣ Kembalikan hasil
+        return jsonify({
+            "message": "Transaksi berhasil dibuat",
+            "transaction": {
+                "id_transaction": transaction.id,
+                "id_reseller": id_reseller,
+                "status": transaction.status,
+                "total_price": float(total_price),
+                "total_products": len(detail_records),
+                "details": detail_records
+            }
+        }), 201
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"message": "Gagal membuat transaksi", "error": str(e)}), 500
