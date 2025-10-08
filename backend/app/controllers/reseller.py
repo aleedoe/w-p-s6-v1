@@ -331,3 +331,52 @@ def res_get_return_transactions(id_reseller: int):
         "id_reseller": id_reseller,
         "return_transaction": result
     })
+
+
+
+def res_get_return_transaction_detail(id_reseller: int, id_return_transaction: int):
+    # Ambil semua detail produk yang diretur untuk reseller dan transaksi retur tertentu
+    details = (
+        db.session.query(
+            ReturnDetailTransaction.id.label("id_return_detail_transaction"),
+            Product.id.label("id_product"),
+            Product.name.label("product_name"),
+            Product.price.label("price"),
+            ReturnDetailTransaction.quantity.label("quantity"),
+            ReturnDetailTransaction.reason.label("reason"),
+            (ReturnDetailTransaction.quantity * Product.price).label("total_price")
+        )
+        .join(ReturnTransaction, ReturnDetailTransaction.id_return_transaction == ReturnTransaction.id)
+        .join(Product, ReturnDetailTransaction.id_product == Product.id)
+        .filter(ReturnTransaction.id_reseller == id_reseller)
+        .filter(ReturnTransaction.id == id_return_transaction)
+        .all()
+    )
+
+    result = []
+    total_products = 0
+    total_quantity = 0
+    total_price = 0
+
+    for d in details:
+        result.append({
+            "id_return_detail_transaction": d.id_return_detail_transaction,
+            "id_product": d.id_product,
+            "product_name": d.product_name,
+            "price": float(d.price),
+            "quantity": d.quantity,
+            "reason": d.reason,
+            "total_price": float(d.total_price)
+        })
+        total_products += 1
+        total_quantity += d.quantity
+        total_price += d.total_price
+
+    return jsonify({
+        "id_reseller": id_reseller,
+        "id_return_transaction": id_return_transaction,
+        "total_products": total_products,   # jumlah produk unik yang diretur
+        "total_quantity": total_quantity,   # total seluruh jumlah barang retur
+        "total_price": float(total_price),  # total nilai barang retur
+        "details": result
+    })

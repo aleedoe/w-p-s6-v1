@@ -25,7 +25,7 @@ admin_bp.route('/return-transactions/<int:return_transaction_id>/reject', method
 
 
 # Reseller routes
-from .controllers.reseller import reseller_login, res_get_all_products, res_get_product_detail, res_get_stocks, res_get_transactions, res_get_transaction_detail, res_create_transaction, res_get_return_transactions
+from .controllers.reseller import reseller_login, res_get_all_products, res_get_product_detail, res_get_stocks, res_get_transactions, res_get_transaction_detail, res_create_transaction, res_get_return_transactions, res_get_return_transaction_detail
 
 reseller_bp.route('/login', methods=['POST'])(reseller_login)
 reseller_bp.route('/products', methods=['GET'])(res_get_all_products)
@@ -35,3 +35,4 @@ reseller_bp.route('/transactions/<int:id_reseller>', methods=['GET'])(res_get_tr
 reseller_bp.route('/transactions/<int:id_reseller>/<int:id_transaction>', methods=['GET'])(res_get_transaction_detail)
 reseller_bp.route('/transactions/<int:id_reseller>', methods=['POST'])(res_create_transaction)
 reseller_bp.route('/return-transactions/<int:id_reseller>', methods=['GET'])(res_get_return_transactions)
+reseller_bp.route('/return-transactions/<int:id_reseller>/<int:id_return_transaction>', methods=['GET'])(res_get_return_transaction_detail)
