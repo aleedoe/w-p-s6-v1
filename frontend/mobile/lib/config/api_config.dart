@@ -12,6 +12,9 @@ class ApiConfig {
   // Transaction endpoints
   static const String transactionEndpoint = '/transactions'; // Endpoint base untuk transaksi
 
+    // Product endpoints
+  static const String productEndpoint = '/products'; 
+
   // Timeout configuration
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);

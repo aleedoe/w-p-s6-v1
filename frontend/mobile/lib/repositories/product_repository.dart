@@ -7,12 +7,12 @@ class ProductRepository {
   final ApiClient _apiClient;
 
   ProductRepository({ApiClient? apiClient})
-    : _apiClient = apiClient ?? ApiClient();
+      : _apiClient = apiClient ?? ApiClient();
 
   // Fetch all products
   Future<List<Product>> fetchProducts() async {
     try {
-      final response = await _apiClient.get('/products');
+      final response = await _apiClient.get(ApiConfig.productEndpoint);
 
       if (response is List) {
         return response
@@ -32,8 +32,13 @@ class ProductRepository {
     required CreateTransactionRequest request,
   }) async {
     try {
-      final endpoint = '/transactions/$resellerId';
-      final response = await _apiClient.post(endpoint, data: request.toJson());
+      // Gunakan base endpoint dari ApiConfig
+      final endpoint = '${ApiConfig.transactionEndpoint}/$resellerId';
+
+      final response = await _apiClient.post(
+        endpoint,
+        body: request.toJson(),
+      );
 
       return CreateTransactionResponse.fromJson(response);
     } catch (e) {

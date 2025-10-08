@@ -56,7 +56,7 @@ class _OrderPageState extends State<OrderPage> {
 
     try {
       final transactionData = await _transactionRepository.fetchTransactions(
-        resellerId: widget.resellerId,
+        resellerId: widget.resellerId ?? 1,
       );
 
       setState(() {
@@ -499,7 +499,7 @@ class _OrderPageState extends State<OrderPage> {
             context,
             MaterialPageRoute(
               builder: (context) => CreateOrderPage(
-                resellerId: widget.resellerId,
+                resellerId: widget.resellerId ?? 1,
               ),
             ),
           );
@@ -557,8 +557,6 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   Widget _buildTransactionTable() {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
