@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
 from sqlalchemy import func
-from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction
+from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction, ReturnTransaction, ReturnDetailTransaction
 from sqlalchemy.exc import SQLAlchemyError
 
 def reseller_login():
@@ -289,3 +289,45 @@ def res_create_transaction(id_reseller: int):
     except SQLAlchemyError as e:
         db.session.rollback()
         return jsonify({"message": "Gagal membuat transaksi", "error": str(e)}), 500
+
+
+def res_get_return_transactions(id_reseller: int):
+    # Query untuk mendapatkan data return transaction
+    returns = (
+        db.session.query(
+            ReturnTransaction.id.label("id_return_transaction"),
+            ReturnTransaction.id_transaction.label("id_transaction"),
+            ReturnTransaction.status.label("status"),
+            ReturnTransaction.created_at.label("return_date"),
+            Transaction.created_at.label("transaction_date"),
+            func.sum(ReturnDetailTransaction.quantity).label("total_quantity")
+        )
+        .join(Transaction, ReturnTransaction.id_transaction == Transaction.id)
+        .join(ReturnDetailTransaction, ReturnDetailTransaction.id_return_transaction == ReturnTransaction.id)
+        .filter(ReturnTransaction.id_reseller == id_reseller)
+        .group_by(
+            ReturnTransaction.id,
+            ReturnTransaction.id_transaction,
+            ReturnTransaction.status,
+            ReturnTransaction.created_at,
+            Transaction.created_at
+        )
+        .order_by(ReturnTransaction.created_at.desc())
+        .all()
+    )
+
+    result = []
+    for r in returns:
+        result.append({
+            "id_return_transaction": r.id_return_transaction,
+            "id_transaction": r.id_transaction,
+            "return_date": r.return_date.strftime("%Y-%m-%d %H:%M:%S") if r.return_date else None,
+            "transaction_date": r.transaction_date.strftime("%Y-%m-%d %H:%M:%S") if r.transaction_date else None,
+            "total_quantity": int(r.total_quantity) if r.total_quantity else 0,
+            "status": r.status
+        })
+
+    return jsonify({
+        "id_reseller": id_reseller,
+        "return_transaction": result
+    })
