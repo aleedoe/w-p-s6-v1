@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_client.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile/views/return/create_return_page.dart';
 import '../../models/return_transaction.dart';
 import '../../repositories/return_repository.dart';
 import './return_detail_page.dart';
@@ -505,6 +506,22 @@ class _ReturnPageState extends State<ReturnPage> {
             ),
           ],
         ),
+      ),
+            floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final created = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CreateReturnPage(resellerId: widget.resellerId ?? 1),
+            ),
+          );
+          if (created == true) {
+            await _refreshReturns();
+          }
+        },
+        backgroundColor: Color(0xFF2196F3),
+        child: Icon(Icons.add),
       ),
     );
   }
