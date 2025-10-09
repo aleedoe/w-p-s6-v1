@@ -557,3 +557,68 @@ def res_get_stockout(id_reseller: int):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+
+
+def res_get_stockout_detail(id_reseller: int, id_stock_out: int):
+    try:
+        # Pastikan stock_out milik reseller ini
+        stock_out = (
+            db.session.query(ResellerStockOut)
+            .filter(
+                ResellerStockOut.id == id_stock_out,
+                ResellerStockOut.id_reseller == id_reseller
+            )
+            .first()
+        )
+
+        if not stock_out:
+            return jsonify({"message": "Data stock out tidak ditemukan untuk reseller ini"}), 404
+
+        # Ambil detail produk dalam stock out
+        details = (
+            db.session.query(
+                ResellerStockOutDetail.id.label("id_detail_stock_out"),
+                Product.id.label("id_product"),
+                Product.name.label("product_name"),
+                Product.price.label("price"),
+                ResellerStockOutDetail.quantity.label("quantity")
+            )
+            .join(Product, ResellerStockOutDetail.id_product == Product.id)
+            .filter(ResellerStockOutDetail.id_stock_out == id_stock_out)
+            .all()
+        )
+
+        result = []
+        total_products = 0
+        total_quantity = 0
+        total_harga_semua = 0
+
+        for d in details:
+            total_harga = float(d.price) * d.quantity
+            total_products += 1
+            total_quantity += d.quantity
+            total_harga_semua += total_harga
+
+            result.append({
+                "id_detail_stock_out": d.id_detail_stock_out,
+                "id_product": d.id_product,
+                "product_name": d.product_name,
+                "price": float(d.price),
+                "quantity": d.quantity,
+                "total_harga": total_harga
+            })
+
+        return jsonify({
+            "id_reseller": id_reseller,
+            "id_stock_out": id_stock_out,
+            "created_at": stock_out.created_at,
+            "total_products": total_products,
+            "total_quantity": total_quantity,
+            "total_harga_semua": total_harga_semua,
+            "details": result
+        })
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
