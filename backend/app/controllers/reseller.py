@@ -380,3 +380,105 @@ def res_get_return_transaction_detail(id_reseller: int, id_return_transaction: i
         "total_price": float(total_price),  # total nilai barang retur
         "details": result
     })
+
+
+def res_create_return_transaction(id_reseller: int, id_transaction: int):
+    data = request.get_json()
+
+    # Validasi input body
+    if not data or "details" not in data or not isinstance(data["details"], list):
+        return jsonify({"message": "Invalid request body"}), 400
+
+    details_data = data["details"]
+
+    if len(details_data) == 0:
+        return jsonify({"message": "Detail return tidak boleh kosong"}), 400
+
+    try:
+        # 1️⃣ Pastikan transaksi asli ada dan milik reseller ini
+        transaction = Transaction.query.filter_by(
+            id=id_transaction, id_reseller=id_reseller
+        ).first()
+        if not transaction:
+            return jsonify({"message": "Transaksi tidak ditemukan untuk reseller ini"}), 404
+
+        # 2️⃣ Buat transaksi return utama
+        return_transaction = ReturnTransaction(
+            id_transaction=id_transaction,
+            id_reseller=id_reseller,
+            status="pending"
+        )
+        db.session.add(return_transaction)
+        db.session.flush()  # supaya id_return_transaction langsung tersedia
+
+        return_details = []
+
+        # 3️⃣ Proses setiap produk yang di-return
+        for item in details_data:
+            id_product = item.get("id_product")
+            quantity = item.get("quantity")
+            reason = item.get("reason", "")
+
+            if not id_product or not quantity or quantity <= 0:
+                db.session.rollback()
+                return jsonify({"message": "id_product dan quantity wajib diisi dengan benar"}), 400
+
+            # Cek apakah produk ada di transaksi asli
+            detail_transaction = DetailTransaction.query.filter_by(
+                id_transaction=id_transaction,
+                id_product=id_product
+            ).first()
+
+            if not detail_transaction:
+                db.session.rollback()
+                return jsonify({"message": f"Produk dengan ID {id_product} tidak ditemukan pada transaksi ini"}), 404
+
+            # Cek apakah jumlah return tidak melebihi jumlah pembelian
+            if quantity > detail_transaction.quantity:
+                db.session.rollback()
+                return jsonify({"message": f"Jumlah return untuk produk ID {id_product} melebihi jumlah transaksi"}), 400
+
+            # Ambil data produk
+            product = Product.query.get(id_product)
+            if not product:
+                db.session.rollback()
+                return jsonify({"message": f"Produk dengan ID {id_product} tidak ditemukan"}), 404
+
+            # Tambahkan kembali stok produk
+            product.quantity += quantity
+
+            # Buat detail return
+            return_detail = ReturnDetailTransaction(
+                id_return_transaction=return_transaction.id,
+                id_product=id_product,
+                quantity=quantity,
+                reason=reason
+            )
+            db.session.add(return_detail)
+
+            return_details.append({
+                "id_product": id_product,
+                "product_name": product.name,
+                "quantity_returned": quantity,
+                "reason": reason
+            })
+
+        # 4️⃣ Commit semua perubahan
+        db.session.commit()
+
+        # 5️⃣ Kembalikan hasil
+        return jsonify({
+            "message": "Return transaction berhasil dibuat",
+            "return_transaction": {
+                "id_return_transaction": return_transaction.id,
+                "id_transaction": id_transaction,
+                "id_reseller": id_reseller,
+                "status": return_transaction.status,
+                "total_products_returned": len(return_details),
+                "details": return_details
+            }
+        }), 201
+
+    except SQLAlchemyError as e:
+        db.session.rollback()
+        return jsonify({"message": "Gagal membuat return transaction", "error": str(e)}), 500
