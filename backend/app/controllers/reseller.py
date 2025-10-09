@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
-from sqlalchemy import func
-from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction, ReturnTransaction, ReturnDetailTransaction
+from sqlalchemy import func, distinct
+from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction, ReturnTransaction, ReturnDetailTransaction, ResellerStockOut, ResellerStockOutDetail
 from sqlalchemy.exc import SQLAlchemyError
 
 def reseller_login():
@@ -192,8 +192,6 @@ def res_get_transactions_completed(id_reseller: int):
         "id_reseller": id_reseller,
         "transactions": result
     })
-
-
 
 
 def res_get_transaction_detail(id_reseller: int, id_transaction: int):
@@ -521,3 +519,41 @@ def res_create_return_transaction(id_reseller: int, id_transaction: int):
     except SQLAlchemyError as e:
         db.session.rollback()
         return jsonify({"message": "Gagal membuat return transaction", "error": str(e)}), 500
+
+
+
+def res_get_stockout(id_reseller: int):
+    try:
+        # Query utama: ambil data stok keluar per reseller
+        stockouts = (
+            db.session.query(
+                ResellerStockOut.id.label("id_stock_out"),
+                ResellerStockOut.created_at.label("created_at"),
+                func.count(func.distinct(ResellerStockOutDetail.id_product)).label("total_products"),
+                func.sum(ResellerStockOutDetail.quantity).label("total_quantity")
+            )
+            .join(ResellerStockOutDetail, ResellerStockOut.id == ResellerStockOutDetail.id_stock_out)
+            .filter(ResellerStockOut.id_reseller == id_reseller)
+            .group_by(ResellerStockOut.id)
+            .order_by(ResellerStockOut.created_at.desc())
+            .all()
+        )
+
+        result = []
+        for s in stockouts:
+            result.append({
+                "id_stock_out": s.id_stock_out,
+                "created_at": s.created_at,
+                "total_products": s.total_products,
+                "total_quantity": int(s.total_quantity or 0)
+            })
+
+        return jsonify({
+            "id_reseller": id_reseller,
+            "total_stock_outs": len(stockouts),
+            "stock_outs": result
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
