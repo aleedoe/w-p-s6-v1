@@ -1,6 +1,7 @@
 // Updated Home Page with Navigation
 import 'package:flutter/material.dart';
 import 'package:mobile/views/custom_navbar.dart';
+import 'package:mobile/views/return/return_page.dart';
 import 'package:mobile/views/stock/stock_screen.dart';
 import 'package:mobile/views/order/order_page.dart';
 
@@ -165,7 +166,14 @@ class HomePage extends StatelessWidget {
                           'Return',
                           Icons.keyboard_return,
                           Color(0xFFF44336),
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ReturnPage(),
+                              ),
+                            );
+                          },
                         ),
                       ],
                     ),
