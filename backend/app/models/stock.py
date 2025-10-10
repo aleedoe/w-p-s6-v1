@@ -1,7 +1,7 @@
 from . import db
 
 class Stock(db.Model):
-    __tablename__ = 'stocks'
+    __tablename__ = 'stock'
 
     id = db.Column(db.Integer, primary_key=True)
     id_reseller = db.Column(db.Integer, db.ForeignKey('resellers.id'), nullable=False)

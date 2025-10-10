@@ -13,3 +13,4 @@ from .return_transaction import ReturnTransaction
 from .return_detail_transaction import ReturnDetailTransaction
 from .reseller import Reseller
 from .stock_out import ResellerStockOut, ResellerStockOutDetail
+from .stock import Stock
