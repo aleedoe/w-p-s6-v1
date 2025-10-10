@@ -4,6 +4,7 @@ import 'package:mobile/views/custom_navbar.dart';
 import 'package:mobile/views/return/return_page.dart';
 import 'package:mobile/views/stock/stock_screen.dart';
 import 'package:mobile/views/order/order_page.dart';
+import 'package:mobile/views/stock_out/stock_out_page.dart';
 
 class HomePage extends StatelessWidget {
   final List<Map<String, dynamic>> dummyData = [
@@ -145,7 +146,14 @@ class HomePage extends StatelessWidget {
                           'Stok Keluar',
                           Icons.inventory_outlined,
                           Color(0xFF9C27B0),
-                          () {},
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => StockOutPage(),
+                              ),
+                            );
+                          },
                         ),
                         _buildMenuCard(
                           context,
