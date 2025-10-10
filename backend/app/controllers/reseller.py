@@ -622,3 +622,5 @@ def res_get_stockout_detail(id_reseller: int, id_stock_out: int):
     except SQLAlchemyError as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+
