@@ -67,22 +67,31 @@ def res_get_product_detail(product_id):
 
 
 def res_get_stocks(id_reseller: int):
-    # Query dengan join
-    detail_transactions = (
+    stocks = (
         db.session.query(
-            DetailTransaction.id.label("id_detail_transaction"),
-            Transaction.id_reseller.label("id_reseller"),
             Product.id.label("id_product"),
-            DetailTransaction.quantity.label("quantity"),
             Product.name.label("product_name"),
             Product.price.label("price"),
             Product.description.label("description"),
-            Category.name.label("category_name")
+            Category.name.label("category_name"),
+            func.coalesce(func.sum(DetailTransaction.quantity), 0).label("total_in"),
+            func.coalesce(
+                db.session.query(func.sum(ResellerStockOutDetail.quantity))
+                .join(ResellerStockOut, ResellerStockOut.id == ResellerStockOutDetail.id_stock_out)
+                .filter(
+                    ResellerStockOut.id_reseller == id_reseller,
+                    ResellerStockOutDetail.id_product == Product.id
+                )
+                .correlate(Product)
+                .scalar_subquery(),
+                0
+            ).label("total_out")
         )
-        .join(Transaction, DetailTransaction.id_transaction == Transaction.id)
-        .join(Product, DetailTransaction.id_product == Product.id)
         .join(Category, Product.id_category == Category.id)
+        .join(DetailTransaction, DetailTransaction.id_product == Product.id)
+        .join(Transaction, Transaction.id == DetailTransaction.id_transaction)
         .filter(Transaction.id_reseller == id_reseller)
+        .group_by(Product.id, Product.name, Product.price, Product.description, Category.name)
         .all()
     )
 
@@ -90,34 +99,33 @@ def res_get_stocks(id_reseller: int):
     total_products = 0
     total_quantity = 0
 
-    for dt in detail_transactions:
-        # Ambil semua gambar produk
-        images = (
-            db.session.query(Image.name)
-            .filter(Image.id_product == dt.id_product)
-            .all()
-        )
+    for s in stocks:
+        # hitung stok akhir
+        current_stock = (s.total_in or 0) - (s.total_out or 0)
+
+        # ambil gambar produk
+        images = db.session.query(Image.name).filter(Image.id_product == s.id_product).all()
         image_list = [img.name for img in images]
 
         total_products += 1
-        total_quantity += dt.quantity
+        total_quantity += current_stock
 
         result.append({
-            "id_detail_transaction": dt.id_detail_transaction,
-            "id_reseller": dt.id_reseller,
-            "id_product": dt.id_product,
-            "quantity": dt.quantity,
-            "product_name": dt.product_name,
-            "price": float(dt.price),
-            "description": dt.description,
-            "category_name": dt.category_name,
+            "id_product": s.id_product,
+            "product_name": s.product_name,
+            "price": float(s.price),
+            "description": s.description,
+            "category_name": s.category_name,
+            "total_in": int(s.total_in),
+            "total_out": int(s.total_out),
+            "current_stock": int(current_stock),
             "images": image_list
         })
 
     return jsonify({
         "id_reseller": id_reseller,
-        "total_products": total_products,   # jumlah produk unik di detail transaksi
-        "total_quantity": total_quantity,   # total kuantitas semua produk di detail transaksi
+        "total_products": total_products,
+        "total_quantity": total_quantity,
         "details": result
     })
 

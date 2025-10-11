@@ -35,7 +35,6 @@ class _StockPageState extends State<StockPage> {
     super.dispose();
   }
 
-  // Load stock data from API
   Future<void> _loadStockData() async {
     setState(() {
       _isLoading = true;
@@ -67,7 +66,6 @@ class _StockPageState extends State<StockPage> {
     }
   }
 
-  // Refresh stock data
   Future<void> _refreshStock() async {
     await _loadStockData();
     if (_errorMessage == null) {
@@ -75,7 +73,6 @@ class _StockPageState extends State<StockPage> {
     }
   }
 
-  // Search products
   void _searchProducts(String query) {
     if (_stockData == null) return;
 
@@ -227,6 +224,16 @@ class _StockPageState extends State<StockPage> {
                     ),
                   ],
                 ),
+                child: TextField(
+                  controller: _searchController,
+                  onChanged: _searchProducts,
+                  decoration: InputDecoration(
+                    hintText: 'Cari produk...',
+                    prefixIcon: Icon(Icons.search, color: Color(0xFF4CAF50)),
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.all(16),
+                  ),
+                ),
               ),
             ),
 
@@ -248,7 +255,7 @@ class _StockPageState extends State<StockPage> {
                     Expanded(
                       child: _buildStatCard(
                         'Total Stok',
-                        '${_stockData!.totalQuantity}',
+                        _stockData!.totalQuantity,
                         Icons.storage_outlined,
                         Color(0xFF4CAF50),
                       ),
@@ -283,109 +290,111 @@ class _StockPageState extends State<StockPage> {
                       ),
                     )
                   : _errorMessage != null
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Color(0xFFF44336),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            _errorMessage!,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: _loadStockData,
-                            icon: Icon(Icons.refresh),
-                            label: Text('Coba Lagi'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF4CAF50),
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : _filteredProducts.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.inventory_2_outlined,
-                            size: 64,
-                            color: Color(0xFF999999),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            _searchController.text.isNotEmpty
-                                ? 'Produk tidak ditemukan'
-                                : 'Belum ada produk',
-                            style: TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
+                              Icon(
+                                Icons.error_outline,
+                                size: 64,
+                                color: Color(0xFFF44336),
+                              ),
+                              SizedBox(height: 16),
                               Text(
-                                'Daftar Produk',
+                                _errorMessage!,
+                                textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF333333),
+                                  color: Color(0xFF666666),
+                                  fontSize: 14,
                                 ),
                               ),
-                              Text(
-                                '${_filteredProducts.length} produk',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Color(0xFF666666),
+                              SizedBox(height: 16),
+                              ElevatedButton.icon(
+                                onPressed: _loadStockData,
+                                icon: Icon(Icons.refresh),
+                                label: Text('Coba Lagi'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF4CAF50),
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 16),
-                          Expanded(
-                            child: RefreshIndicator(
-                              onRefresh: _refreshStock,
-                              color: Color(0xFF4CAF50),
-                              child: ListView.builder(
-                                itemCount: _filteredProducts.length,
-                                itemBuilder: (context, index) {
-                                  final product = _filteredProducts[index];
-                                  return _buildProductCard(product);
-                                },
+                        )
+                      : _filteredProducts.isEmpty
+                          ? Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.inventory_2_outlined,
+                                    size: 64,
+                                    color: Color(0xFF999999),
+                                  ),
+                                  SizedBox(height: 16),
+                                  Text(
+                                    _searchController.text.isNotEmpty
+                                        ? 'Produk tidak ditemukan'
+                                        : 'Belum ada produk',
+                                    style: TextStyle(
+                                      color: Color(0xFF666666),
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Daftar Produk',
+                                        style: TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                          color: Color(0xFF333333),
+                                        ),
+                                      ),
+                                      Text(
+                                        '${_filteredProducts.length} produk',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: Color(0xFF666666),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 16),
+                                  Expanded(
+                                    child: RefreshIndicator(
+                                      onRefresh: _refreshStock,
+                                      color: Color(0xFF4CAF50),
+                                      child: ListView.builder(
+                                        itemCount: _filteredProducts.length,
+                                        itemBuilder: (context, index) {
+                                          final product =
+                                              _filteredProducts[index];
+                                          return _buildProductCard(product);
+                                        },
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
             ),
           ],
         ),
@@ -430,7 +439,10 @@ class _StockPageState extends State<StockPage> {
             ],
           ),
           SizedBox(height: 8),
-          Text(title, style: TextStyle(fontSize: 12, color: Color(0xFF666666))),
+          Text(
+            title,
+            style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
+          ),
         ],
       ),
     );
@@ -454,7 +466,7 @@ class _StockPageState extends State<StockPage> {
         padding: EdgeInsets.all(16),
         child: Row(
           children: [
-            // Product Image Placeholder
+            // Product Image
             Container(
               width: 80,
               height: 80,
@@ -477,7 +489,11 @@ class _StockPageState extends State<StockPage> {
                         },
                       ),
                     )
-                  : Icon(Icons.inventory_2, color: Color(0xFF4CAF50), size: 32),
+                  : Icon(
+                      Icons.inventory_2,
+                      color: Color(0xFF4CAF50),
+                      size: 32,
+                    ),
             ),
             SizedBox(width: 16),
 
@@ -506,16 +522,16 @@ class _StockPageState extends State<StockPage> {
                         ),
                         decoration: BoxDecoration(
                           color: _getStockStatusColor(
-                            product.quantity,
+                            product.currentStock,
                           ).withOpacity(0.1),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
-                          'Stok: ${product.quantity}',
+                          'Stok: ${product.currentStock}',
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,
-                            color: _getStockStatusColor(product.quantity),
+                            color: _getStockStatusColor(product.currentStock),
                           ),
                         ),
                       ),
@@ -524,12 +540,18 @@ class _StockPageState extends State<StockPage> {
                   SizedBox(height: 4),
                   Text(
                     product.categoryName,
-                    style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                    ),
                   ),
                   SizedBox(height: 4),
                   Text(
                     product.description,
-                    style: TextStyle(fontSize: 12, color: Color(0xFF999999)),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF999999),
+                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -544,6 +566,35 @@ class _StockPageState extends State<StockPage> {
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF4CAF50),
                         ),
+                      ),
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_downward,
+                            size: 14,
+                            color: Color(0xFF2196F3),
+                          ),
+                          Text(
+                            ' ${product.totalIn}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF2196F3),
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(
+                            Icons.arrow_upward,
+                            size: 14,
+                            color: Color(0xFFF44336),
+                          ),
+                          Text(
+                            ' ${product.totalOut}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFFF44336),
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -567,9 +618,7 @@ class _StockPageState extends State<StockPage> {
   }
 
   String _formatPrice(double price) {
-    return price
-        .toStringAsFixed(0)
-        .replaceAllMapped(
+    return price.toStringAsFixed(0).replaceAllMapped(
           RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
           (Match m) => '${m[1]}.',
         );
