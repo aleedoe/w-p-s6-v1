@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:mobile/models/stock_out.dart';
 import 'package:mobile/repositories/stock_out_repository.dart';
 import './stock_out_detail_page.dart';
+import 'create_stockout_page.dart';
 
 class StockOutPage extends StatefulWidget {
   final int? resellerId;
@@ -404,6 +405,24 @@ class _StockOutPageState extends State<StockOutPage> {
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          // Navigate to create order page; refresh when returning if created
+          final created = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  CreateStockOutPage(resellerId: widget.resellerId ?? 1),
+            ),
+          );
+
+          if (created == true) {
+            await _refreshStockOuts();
+          }
+        },
+        backgroundColor: Color(0xFF2196F3),
+        child: Icon(Icons.add),
       ),
     );
   }
