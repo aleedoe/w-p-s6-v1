@@ -632,3 +632,77 @@ def res_get_stockout_detail(id_reseller: int, id_stock_out: int):
         return jsonify({"error": str(e)}), 500
 
 
+# Fungsi bantu untuk menghitung stok tersedia
+def get_current_stock(id_reseller, id_product):
+    total_in = (
+        db.session.query(func.coalesce(func.sum(DetailTransaction.quantity), 0))
+        .join(Transaction, DetailTransaction.id_transaction == Transaction.id)
+        .filter(
+            Transaction.id_reseller == id_reseller,
+            DetailTransaction.id_product == id_product
+        )
+        .scalar()
+    )
+
+    total_out = (
+        db.session.query(func.coalesce(func.sum(ResellerStockOutDetail.quantity), 0))
+        .join(ResellerStockOut, ResellerStockOut.id == ResellerStockOutDetail.id_stock_out)
+        .filter(
+            ResellerStockOut.id_reseller == id_reseller,
+            ResellerStockOutDetail.id_product == id_product
+        )
+        .scalar()
+    )
+
+    return (total_in or 0) - (total_out or 0)
+
+
+# Endpoint menambahkan stok keluar reseller
+def res_create_stock_out(id_reseller: int):
+    try:
+        data = request.get_json()
+        details = data.get("details")  # list of {id_product, quantity}
+
+        if not details or not isinstance(details, list):
+            return jsonify({"error": "Field 'details' wajib diisi dan harus berupa list"}), 400
+
+        # buat record header stockout
+        new_stock_out = ResellerStockOut(id_reseller=id_reseller)
+        db.session.add(new_stock_out)
+        db.session.flush()  # supaya dapat id_stock_out
+
+        for item in details:
+            id_product = item.get("id_product")
+            quantity_out = item.get("quantity", 0)
+
+            if not id_product or quantity_out <= 0:
+                db.session.rollback()
+                return jsonify({"error": f"Data produk tidak valid: {item}"}), 400
+
+            # cek stok tersedia reseller untuk produk ini
+            current_stock = get_current_stock(id_reseller, id_product)
+            if quantity_out > current_stock:
+                db.session.rollback()
+                return jsonify({
+                    "error": f"Stok produk ID {id_product} tidak mencukupi. "
+                             f"Stok tersedia: {current_stock}, diminta: {quantity_out}"
+                }), 400
+
+            # tambah detail stock out
+            detail = ResellerStockOutDetail(
+                id_stock_out=new_stock_out.id,
+                id_product=id_product,
+                quantity=quantity_out
+            )
+            db.session.add(detail)
+
+        db.session.commit()
+
+        return jsonify({
+            "message": "Stock out berhasil ditambahkan",
+            "id_stock_out": new_stock_out.id
+        }), 201
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
