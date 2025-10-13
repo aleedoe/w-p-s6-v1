@@ -287,9 +287,13 @@ class _ReturnPageState extends State<ReturnPage> {
             child: RefreshIndicator(
               onRefresh: _refreshReturns,
               color: const Color(0xFFFF6B6B),
-              child: ReturnTable(
-                filteredReturns: _filteredReturns,
-                onRowTap: _navigateToDetail,
+              // [PERBAIKAN UTAMA] Tambahkan SingleChildScrollView di sini
+              child: SingleChildScrollView(
+                // Mengizinkan scrolling vertikal pada area tabel
+                child: ReturnTable(
+                  filteredReturns: _filteredReturns,
+                  onRowTap: _navigateToDetail,
+                ),
               ),
             ),
           ),
