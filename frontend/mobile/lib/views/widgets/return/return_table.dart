@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile/views/widgets/return/return_helpers.dart';
 import '../../../models/return_transaction.dart';
 import 'status_chip.dart';
-import 'return_table_data_cell.dart';
+// import 'return_table_data_cell.dart';
 
 class ReturnTable extends StatelessWidget {
   final List<ReturnTransaction> filteredReturns;
