@@ -1,7 +1,7 @@
 // lib/pages/transaction_detail/widgets/total_section.dart
 import 'package:flutter/material.dart';
-import '../../../models/transaction_detail.dart';
-import '../utils/format_utils.dart';
+import 'package:mobile/models/transaction_detail.dart';
+import 'package:mobile/views/widgets/order/detail_order/format_utils.dart';
 
 /// Widget untuk menampilkan bagian total pembayaran transaksi
 class TransactionTotalSection extends StatelessWidget {

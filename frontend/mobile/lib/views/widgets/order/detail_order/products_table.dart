@@ -1,8 +1,9 @@
 // lib/pages/transaction_detail/widgets/products_table.dart
 import 'package:flutter/material.dart';
-import '../../../models/transaction_detail.dart';
-import '../utils/format_utils.dart';
-import '../utils/style_utils.dart';
+import 'package:mobile/models/transaction_detail.dart';
+import 'package:mobile/views/widgets/order/detail_order/format_utils.dart';
+import 'package:mobile/views/widgets/order/detail_order/style_utils.dart';
+
 
 /// Widget untuk menampilkan tabel produk dalam transaksi
 class TransactionProductsTable extends StatelessWidget {

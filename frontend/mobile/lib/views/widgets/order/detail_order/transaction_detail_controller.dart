@@ -1,8 +1,8 @@
 // lib/pages/transaction_detail/controllers/transaction_detail_controller.dart
 import 'package:flutter/material.dart';
+import 'package:mobile/models/transaction_detail.dart';
+import 'package:mobile/repositories/transaction_repository.dart';
 import 'package:mobile/services/api_client.dart';
-import '../../../models/transaction_detail.dart';
-import '../../../repositories/transaction_repository.dart';
 
 /// Controller untuk mengelola logika bisnis halaman detail transaksi
 class TransactionDetailController {

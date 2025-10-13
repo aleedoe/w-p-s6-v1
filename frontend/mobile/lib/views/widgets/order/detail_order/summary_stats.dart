@@ -1,7 +1,7 @@
 // lib/pages/transaction_detail/widgets/summary_stats.dart
 import 'package:flutter/material.dart';
-import '../../../models/transaction_detail.dart';
-import '../utils/style_utils.dart';
+import 'package:mobile/models/transaction_detail.dart';
+import 'package:mobile/views/widgets/order/detail_order/style_utils.dart';
 
 /// Widget untuk menampilkan statistik ringkasan transaksi
 class TransactionSummaryStats extends StatelessWidget {

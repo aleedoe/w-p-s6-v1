@@ -1,9 +1,10 @@
 // lib/pages/transaction_detail/widgets/info_card.dart
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../models/transaction.dart';
-import '../utils/format_utils.dart';
-import '../utils/style_utils.dart';
+import 'package:mobile/models/transaction.dart';
+import 'package:mobile/views/widgets/order/detail_order/format_utils.dart';
+import 'package:mobile/views/widgets/order/detail_order/style_utils.dart';
+
 
 /// Widget untuk menampilkan kartu informasi transaksi
 class TransactionInfoCard extends StatelessWidget {

@@ -30,8 +30,8 @@ def create_app(config_name='development'):
             "origins": [
                 "http://localhost:3000",
                 "http://127.0.0.1:3000",
-                "http://localhost:59496",
-                "http://127.0.0.1:59496"
+                "http://localhost:63969",
+                "http://127.0.0.1:63969"
             ],
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"]

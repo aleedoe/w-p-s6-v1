@@ -1,7 +1,7 @@
 // lib/pages/transaction_detail/widgets/transaction_detail_body.dart
 import 'package:flutter/material.dart';
-import '../../../models/transaction.dart';
-import '../controllers/transaction_detail_controller.dart';
+import 'package:mobile/models/transaction.dart';
+import 'package:mobile/views/widgets/order/detail_order/transaction_detail_controller.dart';
 import 'info_card.dart';
 import 'summary_stats.dart';
 import 'products_table.dart';
