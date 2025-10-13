@@ -2,7 +2,7 @@
 // FILE 11: lib/widgets/product/product_price_section.dart
 // ============================================
 import 'package:flutter/material.dart';
-import 'price_formatter.dart';
+import '../../../utils/price_formatter.dart';
 
 /// Widget untuk menampilkan harga dan statistik pergerakan stok
 class ProductPriceSection extends StatelessWidget {
