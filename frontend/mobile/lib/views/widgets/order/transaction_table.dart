@@ -3,10 +3,11 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:mobile/views/widgets/order/status_utils.dart';
 import '../../../models/transaction.dart';
-import '../utils/date_formatter.dart';
-import '../utils/price_formatter.dart';
-import '../utils/status_utils.dart';
+import 'package:mobile/utils/date_formatter.dart';
+import 'package:mobile/utils/price_formatter.dart';
+
 
 class TransactionTable extends StatelessWidget {
   final List<Transaction> transactions;

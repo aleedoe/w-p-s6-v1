@@ -1,15 +1,16 @@
 // lib/pages/order_page/order_page.dart
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_client.dart';
+import 'package:mobile/views/widgets/order/order_app_bar.dart';
+import 'package:mobile/views/widgets/order/order_filter_chips.dart';
+import 'package:mobile/views/widgets/order/status_utils.dart';
+import 'package:mobile/views/widgets/order/transaction_stats.dart';
+import 'package:mobile/views/widgets/order/transaction_table.dart';
 import '../../models/transaction.dart';
 import '../../repositories/transaction_repository.dart';
 import './create_order_page.dart';
 import './transaction_detail_page.dart';
-import 'widgets/order_app_bar.dart';
-import 'widgets/order_filter_chips.dart';
-import 'widgets/transaction_stats.dart';
-import 'widgets/transaction_table.dart';
-import 'utils/status_utils.dart';
+
 
 class OrderPage extends StatefulWidget {
   final int? resellerId;
