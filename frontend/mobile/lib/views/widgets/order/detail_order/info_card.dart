@@ -1,6 +1,5 @@
 // lib/pages/transaction_detail/widgets/info_card.dart
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/models/transaction.dart';
 import 'package:mobile/views/widgets/order/detail_order/format_utils.dart';
 import 'package:mobile/views/widgets/order/detail_order/style_utils.dart';
@@ -9,8 +8,10 @@ import 'package:mobile/views/widgets/order/detail_order/style_utils.dart';
 /// Widget untuk menampilkan kartu informasi transaksi
 class TransactionInfoCard extends StatelessWidget {
   final Transaction transaction;
+  final int? resellerId;
+  final int? transactionId;
 
-  const TransactionInfoCard({Key? key, required this.transaction})
+  const TransactionInfoCard({Key? key, required this.transaction, this.resellerId, this.transactionId})
     : super(key: key);
 
   @override
@@ -51,7 +52,7 @@ class TransactionInfoCard extends StatelessWidget {
           SizedBox(height: 16),
 
           // Baris informasi
-          _buildInfoRow('ID Transaksi', '#${transaction.id}', Icons.tag),
+          _buildInfoRow('ID Transaksi', '#$transactionId', Icons.tag),
           SizedBox(height: 12),
           _buildInfoRow(
             'Tanggal Transaksi',
@@ -61,7 +62,7 @@ class TransactionInfoCard extends StatelessWidget {
           SizedBox(height: 12),
           _buildInfoRow(
             'ID Reseller',
-            '#${transaction.id}', // Sesuaikan dengan property yang sesuai
+            '#$resellerId', // Sesuaikan dengan property yang sesuai
             Icons.person,
           ),
         ],

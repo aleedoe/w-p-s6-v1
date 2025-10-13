@@ -12,12 +12,14 @@ class TransactionDetailBody extends StatelessWidget {
   final TransactionDetailController controller;
   final Transaction transaction;
   final int transactionId;
+  final int resellerId;
 
   const TransactionDetailBody({
     Key? key,
     required this.controller,
     required this.transaction,
     required this.transactionId,
+    required this.resellerId,
   }) : super(key: key);
 
   @override
@@ -108,7 +110,7 @@ class TransactionDetailBody extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Kartu informasi transaksi
-                TransactionInfoCard(transaction: transaction),
+                TransactionInfoCard(transaction: transaction, resellerId: resellerId, transactionId: transactionId),
                 SizedBox(height: 24),
 
                 // Statistik ringkasan
