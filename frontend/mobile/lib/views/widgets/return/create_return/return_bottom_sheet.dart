@@ -4,16 +4,39 @@ import 'package:mobile/models/create_return.dart';
 import 'package:mobile/utils/price_formatter.dart';
 import 'return_item_card.dart';
 
+/// Widget utama untuk Bottom Sheet proses Return Produk
 class ReturnBottomSheet extends StatelessWidget {
+  /// Data transaksi yang ingin di-return
   final CompletedTransaction transaction;
+
+  /// List item yang akan di-return
   final List<ReturnCartItem> returnItems;
+
+  /// Total harga semua item yang direturn
   final double totalReturnPrice;
+
+  /// Total jumlah item (qty) yang direturn
   final int totalReturnItems;
+
+  /// Total jumlah produk unik yang direturn
   final int totalReturnProducts;
+
+  /// Status apakah sedang mengirim data return
   final bool isSubmitting;
-  final Function(int, int, VoidCallback) onUpdateQuantity;
-  final Function(int, String, VoidCallback) onUpdateReason;
-  final Function(CompletedTransaction) onSubmitReturn;
+
+  /// Callback ketika quantity diubah
+  /// 💡 Parameter terakhir diubah dari [VoidCallback] → [StateSetter]
+  /// agar bisa memanggil `setModalState()` dari StatefulBuilder.
+  final Function(int index, int quantity, StateSetter setModalState)
+      onUpdateQuantity;
+
+  /// Callback ketika alasan return diubah
+  /// 💡 Sama seperti di atas, ubah parameter terakhir ke [StateSetter].
+  final Function(int index, String reason, StateSetter setModalState)
+      onUpdateReason;
+
+  /// Callback ketika tombol submit ditekan
+  final Function(CompletedTransaction transaction) onSubmitReturn;
 
   const ReturnBottomSheet({
     Key? key,
@@ -30,34 +53,35 @@ class ReturnBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Menggunakan StatefulBuilder untuk memungkinkan perubahan state di dalam bottom sheet
+    // StatefulBuilder digunakan agar bottom sheet bisa diupdate
+    // tanpa harus menutup dan membuka ulang
     return StatefulBuilder(
       builder: (context, setModalState) => Container(
         height: MediaQuery.of(context).size.height * 0.85,
         decoration: BoxDecoration(
-          color: Color(0xFFF5F5F5),
-          borderRadius: BorderRadius.only(
+          color: const Color(0xFFF5F5F5),
+          borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(24),
             topRight: Radius.circular(24),
           ),
         ),
         child: Column(
           children: [
-            // Handle
+            // Handle kecil di atas bottom sheet
             Container(
-              margin: EdgeInsets.symmetric(vertical: 12),
+              margin: const EdgeInsets.symmetric(vertical: 12),
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Color(0xFFCCCCCC),
+                color: const Color(0xFFCCCCCC),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
 
-            // Header
+            // Header bagian atas
             Container(
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
               ),
@@ -65,7 +89,7 @@ class ReturnBottomSheet extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
-                    children: [
+                    children: const [
                       Icon(
                         Icons.assignment_return,
                         color: Color(0xFFFF6B6B),
@@ -84,52 +108,43 @@ class ReturnBottomSheet extends StatelessWidget {
                   ),
                   Text(
                     'Transaksi #${transaction.idTransaction}',
-                    style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF666666),
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // Return Items List
+            // Daftar produk yang akan di-return
             Expanded(
               child: returnItems.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.inventory_2_outlined,
-                            size: 64,
-                            color: Color(0xFF999999),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'Tidak ada produk',
-                            style: TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
+                  ? _buildEmptyState()
                   : ListView.builder(
-                      padding: EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(16),
                       itemCount: returnItems.length,
                       itemBuilder: (context, index) {
                         final returnItem = returnItems[index];
                         return ReturnItemCard(
                           returnItem: returnItem,
                           index: index,
+
+                          // Callback untuk ubah quantity
+                          // Dikirim bersama setModalState agar item bisa update UI
                           onUpdateQuantity: onUpdateQuantity,
+
+                          // Callback untuk ubah alasan return
                           onUpdateReason: onUpdateReason,
+
+                          // SetState dari StatefulBuilder dikirim ke item card
                           setModalState: setModalState,
                         );
                       },
                     ),
             ),
 
-            // Summary and Submit
+            // Bagian bawah: summary dan tombol submit
             _buildSummaryAndSubmit(context, transaction),
           ],
         ),
@@ -137,16 +152,40 @@ class ReturnBottomSheet extends StatelessWidget {
     );
   }
 
-  // Widget untuk Summary dan Submit
+  /// Widget tampilan ketika tidak ada produk
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Icon(
+            Icons.inventory_2_outlined,
+            size: 64,
+            color: Color(0xFF999999),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Tidak ada produk',
+            style: TextStyle(
+              color: Color(0xFF666666),
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Widget untuk menampilkan summary dan tombol submit
   Widget _buildSummaryAndSubmit(
     BuildContext context,
     CompletedTransaction transaction,
   ) {
     return Container(
-      padding: EdgeInsets.all(24),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.only(
+        borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(24),
           topRight: Radius.circular(24),
         ),
@@ -154,37 +193,41 @@ class ReturnBottomSheet extends StatelessWidget {
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
             blurRadius: 10,
-            offset: Offset(0, -2),
+            offset: const Offset(0, -2),
           ),
         ],
       ),
       child: Column(
         children: [
-          // Summary Rows
+          // Total produk return
           _buildSummaryRow(
             'Total Produk Return',
             '$totalReturnProducts jenis',
-            Color(0xFF666666),
+            const Color(0xFF666666),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
+
+          // Total item return
           _buildSummaryRow(
             'Total Item Return',
             '$totalReturnItems pcs',
-            Color(0xFF666666),
+            const Color(0xFF666666),
           ),
-          SizedBox(height: 16),
-          Divider(color: Color(0xFFEEEEEE)),
-          SizedBox(height: 16),
-          // Total Return Price
+          const SizedBox(height: 16),
+
+          const Divider(color: Color(0xFFEEEEEE)),
+          const SizedBox(height: 16),
+
+          // Total harga return
           _buildSummaryRow(
             'Total Return',
             'Rp ${PriceFormatter.format(totalReturnPrice)}',
-            Color(0xFF333333),
+            const Color(0xFF333333),
             isTotal: true,
           ),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-          // Submit Button
+          // Tombol submit
           SizedBox(
             width: double.infinity,
             height: 50,
@@ -192,10 +235,11 @@ class ReturnBottomSheet extends StatelessWidget {
               onPressed: isSubmitting
                   ? null
                   : () {
+                      // Panggil callback submit
                       onSubmitReturn(transaction);
                     },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFFFF6B6B),
+                backgroundColor: const Color(0xFFFF6B6B),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -203,17 +247,18 @@ class ReturnBottomSheet extends StatelessWidget {
                 elevation: 0,
               ),
               child: isSubmitting
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        valueColor:
+                            AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+                      children: const [
                         Icon(Icons.check_circle_outline),
                         SizedBox(width: 8),
                         Text(
@@ -232,7 +277,7 @@ class ReturnBottomSheet extends StatelessWidget {
     );
   }
 
-  // Helper untuk Summary Row
+  /// Helper untuk membangun baris summary
   Row _buildSummaryRow(
     String label,
     String value,
@@ -255,7 +300,7 @@ class ReturnBottomSheet extends StatelessWidget {
           style: TextStyle(
             fontSize: isTotal ? 20 : 14,
             fontWeight: FontWeight.bold,
-            color: isTotal ? Color(0xFFFF6B6B) : Color(0xFF333333),
+            color: isTotal ? const Color(0xFFFF6B6B) : const Color(0xFF333333),
           ),
         ),
       ],

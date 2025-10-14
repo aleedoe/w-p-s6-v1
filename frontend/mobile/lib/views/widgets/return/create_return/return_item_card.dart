@@ -3,12 +3,21 @@ import 'package:flutter/material.dart';
 import 'package:mobile/models/create_return.dart';
 import 'package:mobile/utils/price_formatter.dart';
 
+/// Card untuk setiap item yang bisa direturn
 class ReturnItemCard extends StatelessWidget {
   final ReturnCartItem returnItem;
   final int index;
-  final Function(int, int, VoidCallback) onUpdateQuantity;
-  final Function(int, String, VoidCallback) onUpdateReason;
-  final VoidCallback setModalState; // Untuk memicu rebuild di StatefulBuilder
+
+  /// Callback untuk mengubah jumlah item
+  /// 💡 Ubah parameter ketiga jadi [StateSetter]
+  final Function(int, int, StateSetter) onUpdateQuantity;
+
+  /// Callback untuk mengubah alasan return
+  /// 💡 Sama, ubah parameter terakhir jadi [StateSetter]
+  final Function(int, String, StateSetter) onUpdateReason;
+
+  /// Fungsi [setModalState] dari StatefulBuilder untuk trigger rebuild UI
+  final StateSetter setModalState;
 
   const ReturnItemCard({
     Key? key,
@@ -24,20 +33,20 @@ class ReturnItemCard extends StatelessWidget {
     final isSelected = returnItem.quantity > 0;
 
     return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      padding: EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected ? Color(0xFFFF6B6B) : Color(0xFFEEEEEE),
+          color: isSelected ? const Color(0xFFFF6B6B) : const Color(0xFFEEEEEE),
           width: isSelected ? 2 : 1,
         ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
             blurRadius: 8,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -51,47 +60,51 @@ class ReturnItemCard extends StatelessWidget {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: Color(0xFFFF6B6B).withOpacity(0.1),
+                  color: const Color(0xFFFF6B6B).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.inventory_2,
                   color: Color(0xFFFF6B6B),
                   size: 24,
                 ),
               ),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       returnItem.product.productName,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF333333),
                       ),
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Text(
                       'Rp ${PriceFormatter.format(returnItem.product.price)} × ${returnItem.product.quantity}',
-                      style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF666666),
+                      ),
                     ),
                   ],
                 ),
               ),
             ],
           ),
-          SizedBox(height: 16),
-          Divider(color: Color(0xFFEEEEEE)),
-          SizedBox(height: 16),
+
+          const SizedBox(height: 16),
+          const Divider(color: Color(0xFFEEEEEE)),
+          const SizedBox(height: 16),
 
           // Quantity Controls
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Jumlah Return',
                 style: TextStyle(
                   fontSize: 14,
@@ -109,26 +122,33 @@ class ReturnItemCard extends StatelessWidget {
                       setModalState,
                     ),
                     child: Container(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Color(0xFFF44336),
+                        color: const Color(0xFFF44336),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Icon(Icons.remove, color: Colors.white, size: 16),
+                      child: const Icon(
+                        Icons.remove,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ),
+
+                  // Teks jumlah item
                   Container(
                     width: 40,
                     alignment: Alignment.center,
                     child: Text(
                       '${returnItem.quantity}',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF333333),
                       ),
                     ),
                   ),
+
                   // Tombol Tambah
                   GestureDetector(
                     onTap: () => onUpdateQuantity(
@@ -137,23 +157,28 @@ class ReturnItemCard extends StatelessWidget {
                       setModalState,
                     ),
                     child: Container(
-                      padding: EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
-                        color: Color(0xFFFF6B6B),
+                        color: const Color(0xFFFF6B6B),
                         borderRadius: BorderRadius.circular(6),
                       ),
-                      child: Icon(Icons.add, color: Colors.white, size: 16),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 16,
+                      ),
                     ),
                   ),
                 ],
               ),
             ],
           ),
-          SizedBox(height: 16),
 
-          // Reason Input
+          const SizedBox(height: 16),
+
+          // Input Alasan Return
           if (isSelected) ...[
-            Text(
+            const Text(
               'Alasan Return',
               style: TextStyle(
                 fontSize: 14,
@@ -161,10 +186,10 @@ class ReturnItemCard extends StatelessWidget {
                 color: Color(0xFF333333),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
-                border: Border.all(color: Color(0xFFEEEEEE)),
+                border: Border.all(color: const Color(0xFFEEEEEE)),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TextField(
@@ -172,23 +197,24 @@ class ReturnItemCard extends StatelessWidget {
                     onUpdateReason(index, value, setModalState),
                 minLines: 2,
                 maxLines: 3,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   hintText: 'Masukkan alasan return produk ini...',
                   hintStyle: TextStyle(color: Color(0xFF999999)),
                   border: InputBorder.none,
                   contentPadding: EdgeInsets.all(12),
                 ),
-                style: TextStyle(fontSize: 13, color: Color(0xFF333333)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFF333333)),
               ),
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
+
             // Subtotal
             Row(
               children: [
                 Expanded(
                   child: Text(
                     'Subtotal: Rp ${PriceFormatter.format(returnItem.product.price * returnItem.quantity)}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFFFF6B6B),
