@@ -1,8 +1,8 @@
 // lib/views/return/widgets/return_bottom_sheet_widget.dart
 import 'package:flutter/material.dart';
 import 'package:mobile/models/create_return.dart';
-import 'package:mobile/views/widgets/order/create_order1/create_return_provider.dart';
-import 'package:mobile/views/widgets/order/create_order1/return_confirmation_dialog.dart';
+import 'package:mobile/views/widgets/return/create_return1/create_return_provider.dart';
+import 'package:mobile/views/widgets/return/create_return1/return_confirmation_dialog.dart';
 import 'package:mobile/views/widgets/return/create_return/return_success_dialog.dart';
 import 'return_item_card.dart';
 import 'return_summary_widget.dart';
