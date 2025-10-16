@@ -2,12 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_client.dart';
-import 'package:intl/intl.dart';
 import 'package:mobile/models/stock_out.dart';
 import 'package:mobile/repositories/stock_out_repository.dart';
 import './stock_out_detail_page.dart';
-import 'create_stockout_page.dart';
+import './create_stockout_page.dart';
+import '../widgets/stock_out/stock_out_app_bar.dart';
+import '../widgets/stock_out/stock_out_search_bar.dart';
+import '../widgets/stock_out/stock_out_stats_cards.dart';
+import '../widgets/stock_out/stock_out_table.dart';
+import '../widgets/stock_out/stock_out_empty_state.dart';
+import '../widgets/stock_out/stock_out_error_state.dart';
 
+/// Halaman utama untuk manajemen Stock Out
+/// Menampilkan daftar stock out dengan fitur pencarian dan statistik
 class StockOutPage extends StatefulWidget {
   final int? resellerId;
 
@@ -18,9 +25,11 @@ class StockOutPage extends StatefulWidget {
 }
 
 class _StockOutPageState extends State<StockOutPage> {
+  // Repository untuk mengakses data stock out
   final StockOutRepository _stockOutRepository = StockOutRepository();
   final TextEditingController _searchController = TextEditingController();
 
+  // State management
   StockOutResponse? _stockOutData;
   List<StockOut> _filteredStockOuts = [];
   bool _isLoading = false;
@@ -39,6 +48,7 @@ class _StockOutPageState extends State<StockOutPage> {
     super.dispose();
   }
 
+  /// Memuat data stock out dari repository
   Future<void> _loadStockOutData() async {
     setState(() {
       _isLoading = true;
@@ -70,6 +80,7 @@ class _StockOutPageState extends State<StockOutPage> {
     }
   }
 
+  /// Refresh data stock out dan tampilkan notifikasi sukses
   Future<void> _refreshStockOuts() async {
     await _loadStockOutData();
     if (_errorMessage == null) {
@@ -77,6 +88,7 @@ class _StockOutPageState extends State<StockOutPage> {
     }
   }
 
+  /// Filter stock out berdasarkan query pencarian
   void _searchStockOuts(String query) {
     if (_stockOutData == null) return;
 
@@ -88,6 +100,37 @@ class _StockOutPageState extends State<StockOutPage> {
     });
   }
 
+  /// Navigasi ke halaman detail stock out
+  void _navigateToDetail(StockOut stockOut) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StockOutDetailPage(
+          resellerId: widget.resellerId ?? 1,
+          stockOutId: stockOut.idStockOut,
+          stockOut: stockOut,
+        ),
+      ),
+    );
+  }
+
+  /// Navigasi ke halaman create stock out
+  Future<void> _navigateToCreate() async {
+    final created = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            CreateStockOutPage(resellerId: widget.resellerId ?? 1),
+      ),
+    );
+
+    // Refresh data jika berhasil membuat stock out baru
+    if (created == true) {
+      await _refreshStockOuts();
+    }
+  }
+
+  // Helper methods untuk snackbar notifications
   void _showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -108,19 +151,6 @@ class _StockOutPageState extends State<StockOutPage> {
     );
   }
 
-  void _navigateToDetail(StockOut stockOut) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => StockOutDetailPage(
-          resellerId: widget.resellerId ?? 1,
-          stockOutId: stockOut.idStockOut,
-          stockOut: stockOut,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,498 +158,120 @@ class _StockOutPageState extends State<StockOutPage> {
       body: SafeArea(
         child: Column(
           children: [
-            // Custom App Bar
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Color(0xFF4CAF50), Color(0xFF66BB6A)],
-                ),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(24),
-                  bottomRight: Radius.circular(24),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                            size: 24,
-                          ),
-                        ),
-                      ),
-                      SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Manajemen Stock Out',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            Text(
-                              'Kelola pengeluaran stok',
-                              style: TextStyle(
-                                color: Colors.white.withOpacity(0.9),
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: _isLoading ? null : _refreshStockOuts,
-                        child: Container(
-                          padding: EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: _isLoading
-                              ? SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                              : Icon(
-                                  Icons.refresh,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            // Custom App Bar dengan tombol back dan refresh
+            StockOutAppBar(
+              isLoading: _isLoading,
+              onRefresh: _refreshStockOuts,
+              onBack: () => Navigator.pop(context),
             ),
 
-            // Search Bar
-            Padding(
-              padding: EdgeInsets.all(24),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TextField(
-                  controller: _searchController,
-                  onChanged: _searchStockOuts,
-                  decoration: InputDecoration(
-                    hintText: 'Cari berdasarkan ID Stock Out...',
-                    hintStyle: TextStyle(color: Color(0xFF999999)),
-                    prefixIcon: Icon(Icons.search, color: Color(0xFF4CAF50)),
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 16,
-                    ),
-                  ),
-                ),
-              ),
+            // Search Bar untuk filter stock out
+            StockOutSearchBar(
+              controller: _searchController,
+              onChanged: _searchStockOuts,
             ),
 
-            // Stock Out Stats
+            // Tampilkan statistik jika data sudah dimuat
             if (_stockOutData != null && !_isLoading)
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _buildStatCard(
-                        'Total Stock Out',
-                        '${_stockOutData!.totalStockOuts}',
-                        Icons.inventory_2_outlined,
-                        Color(0xFF4CAF50),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        'Total Produk',
-                        '${_stockOutData!.stockOuts.fold<int>(0, (sum, s) => sum + s.totalProducts)}',
-                        Icons.shopping_bag_outlined,
-                        Color(0xFF8BC34A),
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    Expanded(
-                      child: _buildStatCard(
-                        'Total Qty',
-                        '${_stockOutData!.stockOuts.fold<int>(0, (sum, s) => sum + s.totalQuantity)}',
-                        Icons.stacked_line_chart,
-                        Color(0xFFAED581),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              StockOutStatsCards(stockOutData: _stockOutData!),
 
             SizedBox(height: 24),
 
-            // Stock Out Table
+            // Content area: loading, error, empty, atau table
             Expanded(
-              child: _isLoading
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          CircularProgressIndicator(
-                            valueColor: AlwaysStoppedAnimation<Color>(
-                              Color(0xFF4CAF50),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            'Memuat data...',
-                            style: TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : _errorMessage != null
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            size: 64,
-                            color: Color(0xFFF44336),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            _errorMessage!,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 14,
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          ElevatedButton.icon(
-                            onPressed: _loadStockOutData,
-                            icon: Icon(Icons.refresh),
-                            label: Text('Coba Lagi'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(0xFF4CAF50),
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : _filteredStockOuts.isEmpty
-                  ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.inventory_2_outlined,
-                            size: 64,
-                            color: Color(0xFF999999),
-                          ),
-                          SizedBox(height: 16),
-                          Text(
-                            _searchController.text.isNotEmpty
-                                ? 'Stock out tidak ditemukan'
-                                : 'Belum ada stock out',
-                            style: TextStyle(
-                              color: Color(0xFF666666),
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Daftar Stock Out (${_filteredStockOuts.length})',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ),
-                          ),
-                          SizedBox(height: 16),
-                          Expanded(
-                            child: RefreshIndicator(
-                              onRefresh: _refreshStockOuts,
-                              color: Color(0xFF4CAF50),
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.vertical,
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: _buildStockOutTable(),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+              child: _buildContent(),
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          // Navigate to create order page; refresh when returning if created
-          final created = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  CreateStockOutPage(resellerId: widget.resellerId ?? 1),
-            ),
-          );
-
-          if (created == true) {
-            await _refreshStockOuts();
-          }
-        },
+        onPressed: _navigateToCreate,
         backgroundColor: Color(0xFF2196F3),
         child: Icon(Icons.add),
       ),
     );
   }
 
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: color, size: 24),
-          SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            title,
-            style: TextStyle(fontSize: 11, color: Color(0xFF666666)),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStockOutTable() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: DataTable(
-        columnSpacing: 24,
-        horizontalMargin: 24,
-        headingRowHeight: 56,
-        dataRowHeight: 64,
-        headingRowColor: MaterialStateProperty.all(
-          Color(0xFF4CAF50).withOpacity(0.1),
-        ),
-        columns: [
-          DataColumn(
-            label: Text(
-              'ID Stock Out',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4CAF50),
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Tanggal',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4CAF50),
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Total Produk',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4CAF50),
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Total Qty',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4CAF50),
-                fontSize: 14,
-              ),
-            ),
-          ),
-          DataColumn(
-            label: Text(
-              'Aksi',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF4CAF50),
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-        rows: _filteredStockOuts.map((stockOut) {
-          return DataRow(
-            cells: [
-              DataCell(
-                Text(
-                  '#${stockOut.idStockOut}',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF333333),
-                  ),
-                ),
-                onTap: () => _navigateToDetail(stockOut),
-              ),
-              DataCell(
-                Text(
-                  _formatDate(stockOut.createdAt),
-                  style: TextStyle(color: Color(0xFF666666)),
-                ),
-                onTap: () => _navigateToDetail(stockOut),
-              ),
-              DataCell(
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF4CAF50).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${stockOut.totalProducts}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF4CAF50),
-                    ),
-                  ),
-                ),
-                onTap: () => _navigateToDetail(stockOut),
-              ),
-              DataCell(
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF8BC34A).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    '${stockOut.totalQuantity}',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF8BC34A),
-                    ),
-                  ),
-                ),
-                onTap: () => _navigateToDetail(stockOut),
-              ),
-              DataCell(
-                IconButton(
-                  icon: Icon(
-                    Icons.arrow_forward_ios,
-                    size: 18,
-                    color: Color(0xFF4CAF50),
-                  ),
-                  onPressed: () => _navigateToDetail(stockOut),
-                ),
-              ),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  String _formatDate(String dateString) {
-    try {
-      final date = DateTime.parse(dateString);
-      final formatter = DateFormat('dd/MM/yy HH:mm', 'id_ID');
-      return formatter.format(date);
-    } catch (e) {
-      return dateString;
+  /// Membangun konten utama berdasarkan state
+  Widget _buildContent() {
+    if (_isLoading) {
+      return _buildLoadingState();
     }
+
+    if (_errorMessage != null) {
+      return StockOutErrorState(
+        errorMessage: _errorMessage!,
+        onRetry: _loadStockOutData,
+      );
+    }
+
+    if (_filteredStockOuts.isEmpty) {
+      return StockOutEmptyState(
+        hasSearchQuery: _searchController.text.isNotEmpty,
+      );
+    }
+
+    return _buildTableSection();
+  }
+
+  /// Loading state dengan indicator
+  Widget _buildLoadingState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(
+              Color(0xFF4CAF50),
+            ),
+          ),
+          SizedBox(height: 16),
+          Text(
+            'Memuat data...',
+            style: TextStyle(
+              color: Color(0xFF666666),
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Section tabel dengan header dan refresh indicator
+  Widget _buildTableSection() {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Daftar Stock Out (${_filteredStockOuts.length})',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF333333),
+            ),
+          ),
+          SizedBox(height: 16),
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: _refreshStockOuts,
+              color: Color(0xFF4CAF50),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: StockOutTable(
+                    stockOuts: _filteredStockOuts,
+                    onTapRow: _navigateToDetail,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
