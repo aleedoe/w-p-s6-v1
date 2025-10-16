@@ -706,3 +706,78 @@ def res_create_stock_out(id_reseller: int):
     except Exception as e:
         db.session.rollback()
         return jsonify({"error": str(e)}), 500
+
+
+
+def reseller_dashboard_summary(id_reseller: int):
+    try:
+        # === Total transaksi pengambilan barang ===
+        total_transactions = (
+            db.session.query(func.count(Transaction.id))
+            .filter(Transaction.id_reseller == id_reseller)
+            .scalar()
+        )
+
+        # === Total item masuk (pengambilan dari pusat) ===
+        total_items_in = (
+            db.session.query(func.coalesce(func.sum(DetailTransaction.quantity), 0))
+            .join(Transaction, Transaction.id == DetailTransaction.id_transaction)
+            .filter(Transaction.id_reseller == id_reseller)
+            .scalar()
+        )
+
+        # === Total item keluar (penjualan/stock out) ===
+        total_items_out = (
+            db.session.query(func.coalesce(func.sum(ResellerStockOutDetail.quantity), 0))
+            .join(ResellerStockOut, ResellerStockOut.id == ResellerStockOutDetail.id_stock_out)
+            .filter(ResellerStockOut.id_reseller == id_reseller)
+            .scalar()
+        )
+
+        # === Total retur ===
+        total_returns = (
+            db.session.query(func.coalesce(func.sum(ReturnDetailTransaction.quantity), 0))
+            .join(ReturnTransaction, ReturnTransaction.id == ReturnDetailTransaction.id_return_transaction)
+            .filter(ReturnTransaction.id_reseller == id_reseller)
+            .scalar()
+        )
+
+        # === Hitung stok saat ini ===
+        current_stock = (total_items_in or 0) - (total_items_out or 0) - (total_returns or 0)
+
+        # === Tanggal aktivitas terakhir ===
+        last_transaction_date = (
+            db.session.query(func.max(Transaction.created_at))
+            .filter(Transaction.id_reseller == id_reseller)
+            .scalar()
+        )
+        last_stockout_date = (
+            db.session.query(func.max(ResellerStockOut.created_at))
+            .filter(ResellerStockOut.id_reseller == id_reseller)
+            .scalar()
+        )
+
+        # === Hitung rasio penjualan (sell-through rate) ===
+        sell_through_rate = (
+            round((total_items_out / total_items_in * 100), 2)
+            if total_items_in > 0 else 0
+        )
+
+        # === Response JSON ===
+        return jsonify({
+            "id_reseller": id_reseller,
+            "summary": {
+                "total_transactions": int(total_transactions or 0),
+                "total_items_taken": int(total_items_in or 0),
+                "total_stock_out": int(total_items_out or 0),
+                "total_returns": int(total_returns or 0),
+                "current_stock": int(current_stock or 0),
+                "sell_through_rate": sell_through_rate
+            },
+            "last_transaction_date": last_transaction_date,
+            "last_stock_out_date": last_stockout_date
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
