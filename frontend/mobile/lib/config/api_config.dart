@@ -10,8 +10,8 @@ class ApiConfig {
 
   // Stock endpoints
   static const String stockEndpoint = '/stocks/1';
-  static const String stocksEndpoint = '/stocks'; // For fetching stock by reseller ID
-  static const String stockOutEndpoint = '/stockouts'; // For creating stock out
+  static const String stocksEndpoint = '/stocks';
+  static const String stockOutEndpoint = '/stockouts';
 
   // Transaction endpoints
   static const String transactionEndpoint = '/transactions';
@@ -19,21 +19,21 @@ class ApiConfig {
   // Product endpoints
   static const String productEndpoint = '/products';
 
+  // Report endpoints
+  static const String reportEndpoint = '/reports'; // /reports/{id_reseller}
+
   // Timeout configuration
   static const Duration connectionTimeout = Duration(seconds: 30);
   static const Duration receiveTimeout = Duration(seconds: 30);
 
   // Headers
   static Map<String, String> get headers => {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      };
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
 
   // If using authentication token
   static Map<String, String> getAuthHeaders(String? token) {
-    return {
-      ...headers,
-      if (token != null) 'Authorization': 'Bearer $token',
-    };
+    return {...headers, if (token != null) 'Authorization': 'Bearer $token'};
   }
 }
