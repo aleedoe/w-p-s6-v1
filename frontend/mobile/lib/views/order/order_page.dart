@@ -1,6 +1,8 @@
 // lib/pages/order_page/order_page.dart
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_client.dart';
+import 'package:mobile/services/token_manager.dart';
+import 'package:mobile/models/auth_models.dart';
 import 'package:mobile/views/widgets/order/order_app_bar.dart';
 import 'package:mobile/views/widgets/order/order_filter_chips.dart';
 import 'package:mobile/views/widgets/order/status_utils.dart';
@@ -11,11 +13,8 @@ import '../../repositories/transaction_repository.dart';
 import './create_order_page.dart';
 import './transaction_detail_page.dart';
 
-
 class OrderPage extends StatefulWidget {
-  final int? resellerId;
-
-  const OrderPage({Key? key, this.resellerId}) : super(key: key);
+  const OrderPage({Key? key}) : super(key: key);
 
   @override
   State<OrderPage> createState() => _OrderPageState();
@@ -27,6 +26,8 @@ class _OrderPageState extends State<OrderPage> {
 
   TransactionResponse? _transactionData;
   List<Transaction> _filteredTransactions = [];
+  int? _resellerId;
+  bool _isInitialLoading = true;
   bool _isLoading = false;
   String? _errorMessage;
   String _selectedFilter = 'Semua';
@@ -43,7 +44,7 @@ class _OrderPageState extends State<OrderPage> {
   void initState() {
     super.initState();
     _transactionRepository = TransactionRepository();
-    _loadTransactionData();
+    _initPage();
   }
 
   @override
@@ -53,8 +54,38 @@ class _OrderPageState extends State<OrderPage> {
     super.dispose();
   }
 
+  /// Inisialisasi halaman dengan mendapatkan user dari TokenManager
+  Future<void> _initPage() async {
+    setState(() {
+      _isInitialLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final User? user = await TokenManager.getUser();
+
+      if (user == null) {
+        throw Exception('User tidak ditemukan. Silakan login kembali.');
+      }
+
+      _resellerId = user.id; // Atau user.resellerId jika ada field tersebut
+
+      await _loadTransactionData();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isInitialLoading = false;
+      });
+    }
+  }
+
   /// Memuat data transaksi dari API
   Future<void> _loadTransactionData() async {
+    if (_resellerId == null) return;
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -62,7 +93,7 @@ class _OrderPageState extends State<OrderPage> {
 
     try {
       final transactionData = await _transactionRepository.fetchTransactions(
-        resellerId: widget.resellerId ?? 1,
+        resellerId: _resellerId!,
       );
 
       setState(() {
@@ -153,11 +184,13 @@ class _OrderPageState extends State<OrderPage> {
 
   /// Navigasi ke halaman detail transaksi
   void _navigateToDetail(Transaction transaction) {
+    if (_resellerId == null) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => TransactionDetailPage(
-          resellerId: widget.resellerId ?? 1,
+          resellerId: _resellerId!,
           transactionId: transaction.idTransaction,
           transaction: transaction,
         ),
@@ -167,11 +200,12 @@ class _OrderPageState extends State<OrderPage> {
 
   /// Navigasi ke halaman membuat order baru
   Future<void> _navigateToCreateOrder() async {
+    if (_resellerId == null) return;
+
     final created = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            CreateOrderPage(resellerId: widget.resellerId ?? 1),
+        builder: (context) => CreateOrderPage(resellerId: _resellerId!),
       ),
     );
 
@@ -182,6 +216,48 @@ class _OrderPageState extends State<OrderPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Loading awal saat mengambil user dari TokenManager
+    if (_isInitialLoading) {
+      return Scaffold(
+        backgroundColor: Color(0xFFF5F5F5),
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2196F3)),
+          ),
+        ),
+      );
+    }
+
+    // Error saat inisialisasi (misal user tidak ditemukan)
+    if (_errorMessage != null && _resellerId == null) {
+      return Scaffold(
+        backgroundColor: Color(0xFFF5F5F5),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Color(0xFFF44336)),
+              SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFF666666), fontSize: 14),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _initPage,
+                child: Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF2196F3),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       body: SafeArea(
