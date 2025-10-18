@@ -1,6 +1,8 @@
 // lib/views/return/return_page.dart
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_client.dart';
+import 'package:mobile/services/token_manager.dart';
+import 'package:mobile/models/auth_models.dart';
 import 'package:mobile/views/return/create_return_page.dart';
 import 'package:mobile/views/widgets/return/return_filter_chips.dart';
 import 'package:mobile/views/widgets/return/return_helpers.dart';
@@ -13,9 +15,7 @@ import './return_detail_page.dart';
 import 'package:mobile/views/widgets/return/return_app_bar.dart';
 
 class ReturnPage extends StatefulWidget {
-  final int? resellerId;
-
-  const ReturnPage({Key? key, this.resellerId}) : super(key: key);
+  const ReturnPage({Key? key}) : super(key: key);
 
   @override
   State<ReturnPage> createState() => _ReturnPageState();
@@ -27,6 +27,8 @@ class _ReturnPageState extends State<ReturnPage> {
 
   ReturnTransactionResponse? _returnData;
   List<ReturnTransaction> _filteredReturns = [];
+  int? _resellerId;
+  bool _isInitialLoading = true;
   bool _isLoading = false;
   String? _errorMessage;
   String _selectedFilter = 'Semua';
@@ -43,7 +45,7 @@ class _ReturnPageState extends State<ReturnPage> {
   @override
   void initState() {
     super.initState();
-    _loadReturnData();
+    _initPage();
     // Tambahkan listener untuk otomatis memfilter saat teks pencarian berubah
     _searchController.addListener(() => _searchReturns(_searchController.text));
   }
@@ -58,11 +60,40 @@ class _ReturnPageState extends State<ReturnPage> {
     super.dispose();
   }
 
+  // MARK: - Initialization
+
+  /// Inisialisasi halaman dengan mendapatkan user dari TokenManager
+  Future<void> _initPage() async {
+    setState(() {
+      _isInitialLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final User? user = await TokenManager.getUser();
+
+      if (user == null) {
+        throw Exception('User tidak ditemukan. Silakan login kembali.');
+      }
+
+      _resellerId = user.id; // Atau user.resellerId jika ada field tersebut
+
+      await _loadReturnData();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isInitialLoading = false;
+      });
+    }
+  }
+
   // MARK: - Data Management
 
   /// Memuat data return dari API dan memperbarui state.
   Future<void> _loadReturnData() async {
-    if (!mounted) return; // Mencegah setState dipanggil setelah dispose
+    if (_resellerId == null) return;
+    if (!mounted) return;
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -70,21 +101,22 @@ class _ReturnPageState extends State<ReturnPage> {
 
     try {
       final returnData = await _returnRepository.fetchReturnTransactions(
-        resellerId: widget.resellerId ?? 1,
+        resellerId: _resellerId!,
       );
 
       if (!mounted) return;
       setState(() {
         _returnData = returnData;
-        // Panggil filter setelah memuat data
         _searchReturns(_searchController.text);
         _isLoading = false;
+        _isInitialLoading = false;
       });
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() {
         _errorMessage = e.message;
         _isLoading = false;
+        _isInitialLoading = false;
       });
       _showErrorSnackBar(e.message);
     } catch (e) {
@@ -92,6 +124,7 @@ class _ReturnPageState extends State<ReturnPage> {
       setState(() {
         _errorMessage = 'Terjadi kesalahan yang tidak terduga';
         _isLoading = false;
+        _isInitialLoading = false;
       });
       _showErrorSnackBar('Terjadi kesalahan yang tidak terduga');
     }
@@ -139,9 +172,7 @@ class _ReturnPageState extends State<ReturnPage> {
   void _filterByStatus(String filter) {
     setState(() {
       _selectedFilter = filter;
-      _searchReturns(
-        _searchController.text,
-      ); // Memanggil filter dengan query yang sudah ada
+      _searchReturns(_searchController.text);
     });
   }
 
@@ -149,7 +180,6 @@ class _ReturnPageState extends State<ReturnPage> {
 
   /// Menampilkan Snackbar dengan pesan error.
   void _showErrorSnackBar(String message) {
-    // Pastikan context valid
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -162,7 +192,6 @@ class _ReturnPageState extends State<ReturnPage> {
 
   /// Menampilkan Snackbar dengan pesan sukses.
   void _showSuccessSnackBar(String message) {
-    // Pastikan context valid
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -175,11 +204,13 @@ class _ReturnPageState extends State<ReturnPage> {
 
   /// Menavigasi ke halaman detail return.
   void _navigateToDetail(ReturnTransaction returnTrans) {
+    if (_resellerId == null) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => ReturnDetailPage(
-          resellerId: widget.resellerId ?? 1,
+          resellerId: _resellerId!,
           returnTransactionId: returnTrans.idReturnTransaction,
           returnTransaction: returnTrans,
         ),
@@ -189,11 +220,12 @@ class _ReturnPageState extends State<ReturnPage> {
 
   /// Menangani navigasi ke halaman buat return baru.
   Future<void> _handleCreateReturn() async {
+    if (_resellerId == null) return;
+
     final created = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            CreateReturnPage(resellerId: widget.resellerId ?? 1),
+        builder: (context) => CreateReturnPage(resellerId: _resellerId!),
       ),
     );
     // Jika return berhasil dibuat, refresh data
@@ -206,6 +238,48 @@ class _ReturnPageState extends State<ReturnPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Loading awal saat mengambil user dari TokenManager
+    if (_isInitialLoading) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFFFF6B6B)),
+          ),
+        ),
+      );
+    }
+
+    // Error saat inisialisasi (misal user tidak ditemukan)
+    if (_errorMessage != null && _resellerId == null) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFF5F5F5),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Color(0xFFF44336)),
+              SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFF666666), fontSize: 14),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _initPage,
+                child: Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFFFF6B6B),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       body: SafeArea(
@@ -219,7 +293,6 @@ class _ReturnPageState extends State<ReturnPage> {
               padding: const EdgeInsets.all(24),
               child: ReturnSearchBar(
                 controller: _searchController,
-                // onChanged sudah ditangani oleh listener di initState
               ),
             ),
 
@@ -287,9 +360,7 @@ class _ReturnPageState extends State<ReturnPage> {
             child: RefreshIndicator(
               onRefresh: _refreshReturns,
               color: const Color(0xFFFF6B6B),
-              // [PERBAIKAN UTAMA] Tambahkan SingleChildScrollView di sini
               child: SingleChildScrollView(
-                // Mengizinkan scrolling vertikal pada area tabel
                 child: ReturnTable(
                   filteredReturns: _filteredReturns,
                   onRowTap: _navigateToDetail,
