@@ -1,5 +1,4 @@
 // lib/repositories/stock_repository.dart
-import 'package:mobile/config/api_config.dart';
 import 'package:mobile/models/stock_detail.dart';
 
 import '../services/api_client.dart';
@@ -18,10 +17,7 @@ class StockRepository {
         queryParams['reseller_id'] = resellerId.toString();
       }
 
-      final response = await _apiClient.get(
-        ApiConfig.stockEndpoint,
-        queryParameters: queryParams.isNotEmpty ? queryParams : null,
-      );
+      final response = await _apiClient.get('/stocks/$resellerId');
 
       return StockResponse.fromJson(response);
     } catch (e) {
