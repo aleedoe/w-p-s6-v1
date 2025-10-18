@@ -1,5 +1,4 @@
 // lib/repositories/transaction_repository.dart
-import 'package:mobile/config/api_config.dart';
 import 'package:mobile/models/transaction.dart';
 import 'package:mobile/models/transaction_detail.dart';
 import '../services/api_client.dart';

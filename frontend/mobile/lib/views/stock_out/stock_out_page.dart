@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_client.dart';
+import 'package:mobile/services/token_manager.dart';
+import 'package:mobile/models/auth_models.dart';
 import 'package:mobile/models/stock_out.dart';
 import 'package:mobile/repositories/stock_out_repository.dart';
 import './stock_out_detail_page.dart';
@@ -16,9 +18,7 @@ import '../widgets/stock_out/stock_out_error_state.dart';
 /// Halaman utama untuk manajemen Stock Out
 /// Menampilkan daftar stock out dengan fitur pencarian dan statistik
 class StockOutPage extends StatefulWidget {
-  final int? resellerId;
-
-  const StockOutPage({Key? key, this.resellerId}) : super(key: key);
+  const StockOutPage({Key? key}) : super(key: key);
 
   @override
   State<StockOutPage> createState() => _StockOutPageState();
@@ -32,13 +32,15 @@ class _StockOutPageState extends State<StockOutPage> {
   // State management
   StockOutResponse? _stockOutData;
   List<StockOut> _filteredStockOuts = [];
+  int? _resellerId;
+  bool _isInitialLoading = true;
   bool _isLoading = false;
   String? _errorMessage;
 
   @override
   void initState() {
     super.initState();
-    _loadStockOutData();
+    _initPage();
   }
 
   @override
@@ -48,8 +50,35 @@ class _StockOutPageState extends State<StockOutPage> {
     super.dispose();
   }
 
+  /// Inisialisasi halaman dengan mendapatkan user dari TokenManager
+  Future<void> _initPage() async {
+    setState(() {
+      _isInitialLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final User? user = await TokenManager.getUser();
+
+      if (user == null) {
+        throw Exception('User tidak ditemukan. Silakan login kembali.');
+      }
+
+      _resellerId = user.id; // Atau user.resellerId jika ada field tersebut
+
+      await _loadStockOutData();
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isInitialLoading = false;
+      });
+    }
+  }
+
   /// Memuat data stock out dari repository
   Future<void> _loadStockOutData() async {
+    if (_resellerId == null) return;
+
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -57,24 +86,27 @@ class _StockOutPageState extends State<StockOutPage> {
 
     try {
       final stockOutData = await _stockOutRepository.fetchStockOuts(
-        resellerId: widget.resellerId ?? 1,
+        resellerId: _resellerId!,
       );
 
       setState(() {
         _stockOutData = stockOutData;
         _filteredStockOuts = stockOutData.stockOuts;
         _isLoading = false;
+        _isInitialLoading = false;
       });
     } on ApiException catch (e) {
       setState(() {
         _errorMessage = e.message;
         _isLoading = false;
+        _isInitialLoading = false;
       });
       _showErrorSnackBar(e.message);
     } catch (e) {
       setState(() {
         _errorMessage = 'Terjadi kesalahan yang tidak terduga';
         _isLoading = false;
+        _isInitialLoading = false;
       });
       _showErrorSnackBar('Terjadi kesalahan yang tidak terduga');
     }
@@ -102,11 +134,13 @@ class _StockOutPageState extends State<StockOutPage> {
 
   /// Navigasi ke halaman detail stock out
   void _navigateToDetail(StockOut stockOut) {
+    if (_resellerId == null) return;
+
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => StockOutDetailPage(
-          resellerId: widget.resellerId ?? 1,
+          resellerId: _resellerId!,
           stockOutId: stockOut.idStockOut,
           stockOut: stockOut,
         ),
@@ -116,11 +150,12 @@ class _StockOutPageState extends State<StockOutPage> {
 
   /// Navigasi ke halaman create stock out
   Future<void> _navigateToCreate() async {
+    if (_resellerId == null) return;
+
     final created = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) =>
-            CreateStockOutPage(resellerId: widget.resellerId ?? 1),
+        builder: (context) => CreateStockOutPage(resellerId: _resellerId!),
       ),
     );
 
@@ -132,6 +167,7 @@ class _StockOutPageState extends State<StockOutPage> {
 
   // Helper methods untuk snackbar notifications
   void _showErrorSnackBar(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -142,6 +178,7 @@ class _StockOutPageState extends State<StockOutPage> {
   }
 
   void _showSuccessSnackBar(String message) {
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -153,6 +190,48 @@ class _StockOutPageState extends State<StockOutPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Loading awal saat mengambil user dari TokenManager
+    if (_isInitialLoading) {
+      return Scaffold(
+        backgroundColor: Color(0xFFF5F5F5),
+        body: Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
+          ),
+        ),
+      );
+    }
+
+    // Error saat inisialisasi (misal user tidak ditemukan)
+    if (_errorMessage != null && _resellerId == null) {
+      return Scaffold(
+        backgroundColor: Color(0xFFF5F5F5),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.error_outline, size: 64, color: Color(0xFFF44336)),
+              SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Color(0xFF666666), fontSize: 14),
+              ),
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _initPage,
+                child: Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF4CAF50),
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       body: SafeArea(
@@ -178,9 +257,7 @@ class _StockOutPageState extends State<StockOutPage> {
             SizedBox(height: 24),
 
             // Content area: loading, error, empty, atau table
-            Expanded(
-              child: _buildContent(),
-            ),
+            Expanded(child: _buildContent()),
           ],
         ),
       ),
@@ -221,17 +298,12 @@ class _StockOutPageState extends State<StockOutPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation<Color>(
-              Color(0xFF4CAF50),
-            ),
+            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF4CAF50)),
           ),
           SizedBox(height: 16),
           Text(
             'Memuat data...',
-            style: TextStyle(
-              color: Color(0xFF666666),
-              fontSize: 14,
-            ),
+            style: TextStyle(color: Color(0xFF666666), fontSize: 14),
           ),
         ],
       ),
