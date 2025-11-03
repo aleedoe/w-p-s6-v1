@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile/services/api_client.dart';
 import 'package:mobile/views/widgets/stock_out/cresate_stock_out/cart_bottom_sheet.dart';
-import 'package:mobile/views/widgets/stock_out/cresate_stock_out/category_filter.dart';
 import 'package:mobile/views/widgets/stock_out/cresate_stock_out/stock_card.dart';
 import '../../models/create_stockout.dart';
 import '../../repositories/create_stockout_repository.dart';
@@ -29,7 +28,6 @@ class _CreateStockOutPageState extends State<CreateStockOutPage> {
   bool _isLoading = false;
   bool _isSubmitting = false;
   String? _errorMessage;
-  String _selectedCategory = 'Semua';
 
   @override
   void initState() {
@@ -93,18 +91,10 @@ class _CreateStockOutPageState extends State<CreateStockOutPage> {
     setState(() {
       var filtered = _allStocks;
 
-      // Apply category filter
-      if (_selectedCategory != 'Semua') {
-        filtered = filtered
-            .where((s) => s.categoryName == _selectedCategory)
-            .toList();
-      }
-
       // Apply search query
       if (query.isNotEmpty) {
         filtered = filtered.where((s) {
-          return s.productName.toLowerCase().contains(query.toLowerCase()) ||
-              s.categoryName.toLowerCase().contains(query.toLowerCase());
+          return s.productName.toLowerCase().contains(query.toLowerCase());
         }).toList();
       }
 
@@ -112,20 +102,6 @@ class _CreateStockOutPageState extends State<CreateStockOutPage> {
     });
   }
 
-  /// Filters stocks by category
-  void _filterByCategory(String category) {
-    setState(() {
-      _selectedCategory = category;
-      _searchAndFilter(_searchController.text);
-    });
-  }
-
-  /// Gets unique categories from all stocks
-  List<String> get _categories {
-    final categories = _allStocks.map((s) => s.categoryName).toSet().toList();
-    categories.sort();
-    return ['Semua', ...categories];
-  }
 
   // ========== Cart Management Methods ==========
 
@@ -370,11 +346,6 @@ class _CreateStockOutPageState extends State<CreateStockOutPage> {
             _buildAppBar(),
             _buildSearchBar(),
             if (!_isLoading && _allStocks.isNotEmpty)
-              CategoryFilter(
-                categories: _categories,
-                selectedCategory: _selectedCategory,
-                onCategorySelected: _filterByCategory,
-              ),
             _buildStocksList(),
           ],
         ),
