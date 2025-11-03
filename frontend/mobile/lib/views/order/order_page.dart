@@ -4,8 +4,6 @@ import 'package:mobile/services/api_client.dart';
 import 'package:mobile/services/token_manager.dart';
 import 'package:mobile/models/auth_models.dart';
 import 'package:mobile/views/widgets/order/order_app_bar.dart';
-import 'package:mobile/views/widgets/order/order_filter_chips.dart';
-import 'package:mobile/views/widgets/order/status_utils.dart';
 import 'package:mobile/views/widgets/order/transaction_stats.dart';
 import 'package:mobile/views/widgets/order/transaction_table.dart';
 import '../../models/transaction.dart';
@@ -31,14 +29,6 @@ class _OrderPageState extends State<OrderPage> {
   bool _isLoading = false;
   String? _errorMessage;
   String _selectedFilter = 'Semua';
-
-  final List<String> _filterOptions = [
-    'Semua',
-    'Selesai',
-    'Menunggu',
-    'Diproses',
-    'Dibatalkan',
-  ];
 
   @override
   void initState() {
@@ -125,40 +115,6 @@ class _OrderPageState extends State<OrderPage> {
     }
   }
 
-  /// Mencari transaksi berdasarkan query dan filter
-  void _searchTransactions(String query) {
-    if (_transactionData == null) return;
-
-    setState(() {
-      var filtered = _transactionData!.transactions;
-
-      // Apply status filter
-      if (_selectedFilter != 'Semua') {
-        String statusFilter = StatusUtils.getStatusFromLabel(_selectedFilter);
-        filtered = filtered
-            .where((t) => t.status.toLowerCase() == statusFilter.toLowerCase())
-            .toList();
-      }
-
-      // Apply search query
-      if (query.isNotEmpty) {
-        filtered = filtered.where((t) {
-          return t.idTransaction.toString().contains(query) ||
-              t.getStatusLabel().toLowerCase().contains(query.toLowerCase());
-        }).toList();
-      }
-
-      _filteredTransactions = filtered;
-    });
-  }
-
-  /// Mengubah filter status
-  void _filterByStatus(String filter) {
-    setState(() {
-      _selectedFilter = filter;
-      _searchTransactions(_searchController.text);
-    });
-  }
 
   /// Menampilkan snackbar error
   void _showErrorSnackBar(String message) {
@@ -295,11 +251,6 @@ class _OrderPageState extends State<OrderPage> {
         children: [
           SizedBox(height: 16),
           if (_transactionData != null) ...[
-            OrderFilterChips(
-              options: _filterOptions,
-              selectedFilter: _selectedFilter,
-              onFilterChanged: _filterByStatus,
-            ),
             SizedBox(height: 24),
             TransactionStats(transactionData: _transactionData!),
             SizedBox(height: 24),
