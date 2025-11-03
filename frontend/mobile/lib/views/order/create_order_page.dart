@@ -3,7 +3,6 @@ import 'package:mobile/repositories/product_repository.dart';
 import 'package:mobile/services/api_client.dart';
 import 'package:mobile/utils/price_formatter.dart';
 import 'package:mobile/views/widgets/order/create_order/cart_bottom_sheet.dart';
-import 'package:mobile/views/widgets/order/create_order/category_filter.dart';
 import 'package:mobile/views/widgets/order/create_order/order_app_bar.dart';
 import 'package:mobile/views/widgets/order/create_order/product_card.dart';
 import 'package:mobile/views/widgets/order/create_order/product_search_bar.dart';
@@ -29,7 +28,6 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
   bool _isLoading = false;
   bool _isSubmitting = false;
   String? _errorMessage;
-  String _selectedCategory = 'Semua';
 
   @override
   void initState() {
@@ -86,18 +84,10 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
     setState(() {
       var filtered = _allProducts;
 
-      // Apply category filter
-      if (_selectedCategory != 'Semua') {
-        filtered = filtered
-            .where((p) => p.category == _selectedCategory)
-            .toList();
-      }
-
       // Apply search query
       if (query.isNotEmpty) {
         filtered = filtered.where((p) {
-          return p.name.toLowerCase().contains(query.toLowerCase()) ||
-              p.category.toLowerCase().contains(query.toLowerCase());
+          return p.name.toLowerCase().contains(query.toLowerCase());
         }).toList();
       }
 
@@ -105,13 +95,6 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
     });
   }
 
-  // Filter by category
-  void _filterByCategory(String category) {
-    setState(() {
-      _selectedCategory = category;
-      _searchAndFilter(_searchController.text);
-    });
-  }
 
   // Cart management methods
   void _addToCart(Product product) {
@@ -163,13 +146,6 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
   double get _totalPrice =>
       _cartItems.fold(0, (sum, item) => sum + item.totalPrice);
   int get _totalItems => _cartItems.fold(0, (sum, item) => sum + item.quantity);
-
-  // Get unique categories
-  List<String> get _categories {
-    final categories = _allProducts.map((p) => p.category).toSet().toList();
-    categories.sort();
-    return ['Semua', ...categories];
-  }
 
   // Snackbar helpers
   void _showErrorSnackBar(String message) {
@@ -452,13 +428,6 @@ class _CreateOrderPageState extends State<CreateOrderPage> {
               onChanged: _searchAndFilter,
             ),
 
-            // Category Filter
-            if (!_isLoading && _allProducts.isNotEmpty)
-              CategoryFilter(
-                categories: _categories,
-                selectedCategory: _selectedCategory,
-                onCategorySelected: _filterByCategory,
-              ),
 
             // Products List
             Expanded(child: _buildProductList()),
