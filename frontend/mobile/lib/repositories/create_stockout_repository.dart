@@ -7,7 +7,7 @@ class StockRepository {
   final ApiClient _apiClient;
 
   StockRepository({ApiClient? apiClient})
-      : _apiClient = apiClient ?? ApiClient();
+    : _apiClient = apiClient ?? ApiClient();
 
   // Fetch stocks for reseller
   Future<StockResponse> fetchStocks(int resellerId) async {
@@ -29,10 +29,7 @@ class StockRepository {
     try {
       final endpoint = '${ApiConfig.stockOutEndpoint}/$resellerId';
 
-      final response = await _apiClient.post(
-        endpoint,
-        body: request.toJson(),
-      );
+      final response = await _apiClient.post(endpoint, body: request.toJson());
 
       return CreateStockOutResponse.fromJson(response);
     } catch (e) {
@@ -47,19 +44,7 @@ class StockRepository {
     }
 
     return stocks.where((stock) {
-      return stock.productName.toLowerCase().contains(query.toLowerCase()) ||
-          stock.categoryName.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-  }
-
-  // Filter by category
-  List<StockItem> filterByCategory(List<StockItem> stocks, String? category) {
-    if (category == null || category.isEmpty || category == 'Semua') {
-      return stocks;
-    }
-
-    return stocks.where((stock) {
-      return stock.categoryName == category;
+      return stock.productName.toLowerCase().contains(query.toLowerCase());
     }).toList();
   }
 

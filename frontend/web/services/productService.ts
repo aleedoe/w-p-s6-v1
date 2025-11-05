@@ -4,11 +4,9 @@ import api from "@/lib/axios";
 export interface Product {
     id: number;
     name: string;
-    category?: string;
     price: number;
     quantity: number;
     description?: string;
-    id_category?: number;
     images?: string[]; // biar bisa nampilin gambar
 }
 
@@ -28,7 +26,6 @@ export const productService = {
         price: number;
         quantity: number;
         description?: string;
-        id_category: number;
         images?: File[]; // untuk upload gambar
     }) {
         // kalau backend butuh multipart:
@@ -37,7 +34,6 @@ export const productService = {
         formData.append("price", String(payload.price));
         formData.append("quantity", String(payload.quantity));
         if (payload.description) formData.append("description", payload.description);
-        formData.append("id_category", String(payload.id_category));
 
         if (payload.images) {
             payload.images.forEach((file) => {
@@ -57,7 +53,6 @@ export const productService = {
         formData.append("price", String(payload.price));
         formData.append("quantity", String(payload.quantity));
         formData.append("description", payload.description || "");
-        formData.append("id_category", String(payload.id_category));
 
         // Kirim daftar gambar yang akan dihapus
         if (payload.removedImages && payload.removedImages.length > 0) {

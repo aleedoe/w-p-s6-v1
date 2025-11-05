@@ -69,7 +69,6 @@ class StockPageController extends ChangeNotifier {
           .where(
             (product) =>
                 product.productName.toLowerCase().contains(lowerQuery) ||
-                product.categoryName.toLowerCase().contains(lowerQuery) ||
                 product.description.toLowerCase().contains(lowerQuery),
           )
           .toList();

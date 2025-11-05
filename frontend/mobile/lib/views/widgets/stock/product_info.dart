@@ -23,17 +23,6 @@ class ProductInfo extends StatelessWidget {
         // Nama produk dan badge stok
         _buildNameAndBadge(),
         const SizedBox(height: 4),
-
-        // Kategori
-        Text(
-          product.categoryName,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Color(0xFF666666),
-          ),
-        ),
-        const SizedBox(height: 4),
-
         // Deskripsi
         Text(
           product.description,

@@ -75,11 +75,6 @@ class StockCard extends StatelessWidget {
             ),
           ),
           SizedBox(height: 4),
-          Text(
-            stock.categoryName,
-            style: TextStyle(fontSize: 12, color: Color(0xFF666666)),
-          ),
-          SizedBox(height: 8),
           Row(
             children: [
               Text(

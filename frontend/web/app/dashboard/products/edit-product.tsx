@@ -34,7 +34,6 @@ export const EditProduct: React.FC<EditProductProps> = ({
         price: "",
         quantity: "",
         description: "",
-        id_category: "",
     });
     const [files, setFiles] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -50,8 +49,6 @@ export const EditProduct: React.FC<EditProductProps> = ({
 
     const selectedValue = useMemo(() => {
         const key = Array.from(selectedKeys)[0];
-        const category = categories.find((c) => c.id === key);
-        return category ? category.name : "";
     }, [selectedKeys]);
 
     const handleChange = (key: string, value: string) => {
@@ -79,9 +76,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
                         price: String(data.price || ""),
                         quantity: String(data.quantity || ""),
                         description: data.description || "",
-                        id_category: String(data.id_category || ""),
                     });
-                    setSelectedKeys(new Set([String(data.id_category)]));
 
                     setExistingImages(data.images || []);
                     setRemovedImages([]);
@@ -104,7 +99,6 @@ export const EditProduct: React.FC<EditProductProps> = ({
                     price: Number(form.price),
                     quantity: Number(form.quantity),
                     description: form.description,
-                    id_category: Number(form.id_category),
                     removedImages, // kirim ke backend
                 },
                 files
@@ -154,33 +148,6 @@ export const EditProduct: React.FC<EditProductProps> = ({
                             value={form.description}
                             onChange={(e) => handleChange("description", e.target.value)}
                         />
-
-                        {/* Dropdown kategori */}
-                        <Dropdown>
-                            <DropdownTrigger>
-                                <Button className="capitalize" variant="bordered">
-                                    {selectedValue || "Pilih Kategori"}
-                                </Button>
-                            </DropdownTrigger>
-                            <DropdownMenu
-                                disallowEmptySelection
-                                aria-label="Pilih kategori produk"
-                                selectedKeys={selectedKeys}
-                                selectionMode="single"
-                                variant="flat"
-                                onSelectionChange={(keys) => {
-                                    setSelectedKeys(keys as Set<string>);
-                                    const key = Array.from(keys)[0];
-                                    handleChange("id_category", key.toString());
-                                }}
-                            >
-                                {categories.map((cat) => (
-                                    <DropdownItem key={cat.id}>
-                                        {cat.name}
-                                    </DropdownItem>
-                                ))}
-                            </DropdownMenu>
-                        </Dropdown>
 
                         {/* Dropzone */}
                         <div

@@ -53,19 +53,7 @@ class ProductRepository {
     }
 
     return products.where((product) {
-      return product.name.toLowerCase().contains(query.toLowerCase()) ||
-          product.category.toLowerCase().contains(query.toLowerCase());
-    }).toList();
-  }
-
-  // Filter by category
-  List<Product> filterByCategory(List<Product> products, String? category) {
-    if (category == null || category.isEmpty || category == 'Semua') {
-      return products;
-    }
-
-    return products.where((product) {
-      return product.category == category;
+      return product.name.toLowerCase().contains(query.toLowerCase());
     }).toList();
   }
 

@@ -15,7 +15,6 @@ import { productService, Product } from "@/services/productService";
 const columns = [
   { name: "NO", uid: "no" },        // ganti ID jadi nomor urut
   { name: "NAME", uid: "name" },
-  { name: "CATEGORY", uid: "category" },
   { name: "PRICE", uid: "price" },
   { name: "QUANTITY", uid: "quantity" },
   { name: "ACTIONS", uid: "actions" },

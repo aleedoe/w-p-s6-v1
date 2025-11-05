@@ -1,7 +1,6 @@
 // lib/models/stock.dart
 
 class StockItem {
-  final String categoryName;
   final int currentStock;
   final String description;
   final int idProduct;
@@ -12,7 +11,6 @@ class StockItem {
   final int totalOut;
 
   StockItem({
-    required this.categoryName,
     required this.currentStock,
     required this.description,
     required this.idProduct,
@@ -25,7 +23,6 @@ class StockItem {
 
   factory StockItem.fromJson(Map<String, dynamic> json) {
     return StockItem(
-      categoryName: json['category_name'] ?? '',
       currentStock: json['current_stock'] ?? 0,
       description: json['description'] ?? '',
       idProduct: json['id_product'] ?? 0,
@@ -42,7 +39,6 @@ class StockItem {
 
   Map<String, dynamic> toJson() {
     return {
-      'category_name': categoryName,
       'current_stock': currentStock,
       'description': description,
       'id_product': idProduct,

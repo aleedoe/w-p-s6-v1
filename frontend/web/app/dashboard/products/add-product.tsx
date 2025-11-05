@@ -22,7 +22,6 @@ export const AddProduct = () => {
         price: "",
         quantity: "",
         description: "",
-        id_category: "",
     });
 
     const [files, setFiles] = useState<File[]>([]);
@@ -38,8 +37,6 @@ export const AddProduct = () => {
 
     const selectedValue = useMemo(() => {
         const key = Array.from(selectedKeys)[0];
-        const category = categories.find((c) => c.id === key);
-        return category ? category.name : "";
     }, [selectedKeys]);
 
     const handleChange = (key: string, value: string) => {
@@ -65,7 +62,6 @@ export const AddProduct = () => {
                 price: Number(form.price),
                 quantity: Number(form.quantity),
                 description: form.description,
-                id_category: Number(form.id_category),
                 images: files, // ⬅️ KIRIM FILE DI SINI
             });
 
@@ -76,7 +72,6 @@ export const AddProduct = () => {
                 price: "",
                 quantity: "",
                 description: "",
-                id_category: "",
             });
             setSelectedKeys(new Set());
             setFiles([]);
@@ -130,31 +125,6 @@ export const AddProduct = () => {
                                     value={form.description}
                                     onChange={(e) => handleChange("description", e.target.value)}
                                 />
-
-                                {/* Dropdown kategori */}
-                                <Dropdown>
-                                    <DropdownTrigger>
-                                        <Button className="capitalize" variant="bordered">
-                                            {selectedValue || "Pilih Kategori"}
-                                        </Button>
-                                    </DropdownTrigger>
-                                    <DropdownMenu
-                                        disallowEmptySelection
-                                        aria-label="Pilih kategori produk"
-                                        selectedKeys={selectedKeys}
-                                        selectionMode="single"
-                                        variant="flat"
-                                        onSelectionChange={(keys) => {
-                                            setSelectedKeys(keys as Set<string>);
-                                            const key = Array.from(keys)[0];
-                                            handleChange("id_category", key.toString());
-                                        }}
-                                    >
-                                        {categories.map((cat) => (
-                                            <DropdownItem key={cat.id}>{cat.name}</DropdownItem>
-                                        ))}
-                                    </DropdownMenu>
-                                </Dropdown>
 
                                 {/* Dropzone */}
                                 <div

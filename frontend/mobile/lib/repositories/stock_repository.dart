@@ -42,8 +42,7 @@ class StockRepository {
       return stockResponse.details.where((product) {
         return product.productName.toLowerCase().contains(
               query.toLowerCase(),
-            ) ||
-            product.categoryName.toLowerCase().contains(query.toLowerCase());
+            );
       }).toList();
     } catch (e) {
       throw ApiException('Gagal mencari produk: ${e.toString()}');
