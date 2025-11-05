@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 from .admin import Admin
-from .category import Category
 from .product import Product
 from .image import Image
 from .transaction import Transaction

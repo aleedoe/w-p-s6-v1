@@ -1,7 +1,7 @@
 from flask import request, jsonify
 from flask_jwt_extended import create_access_token
 from sqlalchemy import func, distinct
-from ..models import Reseller, db, Product, Category, DetailTransaction, Image, Transaction, ReturnTransaction, ReturnDetailTransaction, ResellerStockOut, ResellerStockOutDetail
+from ..models import Reseller, db, Product,  DetailTransaction, Image, Transaction, ReturnTransaction, ReturnDetailTransaction, ResellerStockOut, ResellerStockOutDetail
 from sqlalchemy.exc import SQLAlchemyError
 
 def reseller_login():
@@ -29,14 +29,13 @@ def reseller_login():
 
 
 def res_get_all_products():
-    products = Product.query.join(Category).all()
+    products = Product.query.all()
     
     result = []
     for product in products:
         result.append({
             "id": product.id,
             "name": product.name,
-            "category": product.category.name if product.category else None,
             "quantity": product.quantity,
             "price": product.price
         })
@@ -60,7 +59,6 @@ def res_get_product_detail(product_id):
         "price": product.price,
         "quantity": product.quantity,
         "description": product.description,
-        "id_category": product.id_category
     }
     
     return jsonify(result), 200
@@ -73,7 +71,6 @@ def res_get_stocks(id_reseller: int):
             Product.name.label("product_name"),
             Product.price.label("price"),
             Product.description.label("description"),
-            Category.name.label("category_name"),
             func.coalesce(func.sum(DetailTransaction.quantity), 0).label("total_in"),
             func.coalesce(
                 db.session.query(func.sum(ResellerStockOutDetail.quantity))
@@ -87,11 +84,10 @@ def res_get_stocks(id_reseller: int):
                 0
             ).label("total_out")
         )
-        .join(Category, Product.id_category == Category.id)
         .join(DetailTransaction, DetailTransaction.id_product == Product.id)
         .join(Transaction, Transaction.id == DetailTransaction.id_transaction)
         .filter(Transaction.id_reseller == id_reseller)
-        .group_by(Product.id, Product.name, Product.price, Product.description, Category.name)
+        .group_by(Product.id, Product.name, Product.price, Product.description)
         .all()
     )
 
@@ -115,7 +111,6 @@ def res_get_stocks(id_reseller: int):
             "product_name": s.product_name,
             "price": float(s.price),
             "description": s.description,
-            "category_name": s.category_name,
             "total_in": int(s.total_in),
             "total_out": int(s.total_out),
             "current_stock": int(current_stock),

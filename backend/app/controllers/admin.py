@@ -1,6 +1,6 @@
 from flask import request, jsonify, current_app
 from flask_jwt_extended import create_access_token, get_jwt_identity
-from ..models import Admin, db, Product, Category, Image, Transaction, Reseller, DetailTransaction, ReturnTransaction, ReturnDetailTransaction
+from ..models import Admin, db, Product, Image, Transaction, Reseller, DetailTransaction, ReturnTransaction, ReturnDetailTransaction
 from sqlalchemy import func
 from werkzeug.utils import secure_filename
 import os
@@ -31,14 +31,13 @@ def admin_login():
 
 
 def get_all_products():
-    products = Product.query.join(Category).all()
+    products = Product.query.all()
     
     result = []
     for product in products:
         result.append({
             "id": product.id,
             "name": product.name,
-            "category": product.category.name if product.category else None,
             "quantity": product.quantity,
             "price": product.price
         })
@@ -62,7 +61,6 @@ def get_product_detail(product_id):
         "price": product.price,
         "quantity": product.quantity,
         "description": product.description,
-        "id_category": product.id_category
     }
     
     return jsonify(result), 200
@@ -71,24 +69,14 @@ def get_product_detail(product_id):
 def create_product():
     name = request.form.get("name")
     price = request.form.get("price")
-    id_category = request.form.get("id_category")
     quantity = request.form.get("quantity", 0)
     description = request.form.get("description", "")
-
-    # Validasi sederhana
-    if not name or not price or not id_category:
-        return jsonify({"msg": "Missing required fields"}), 400
-
-    category = Category.query.filter_by(id=id_category).first()
-    if not category:
-        return jsonify({"msg": "Category not found"}), 404
 
     new_product = Product(
         name=name,
         quantity=quantity,
         price=price,
         description=description,
-        id_category=id_category
     )
 
     db.session.add(new_product)
@@ -123,7 +111,6 @@ def create_product():
             "quantity": new_product.quantity,
             "price": new_product.price,
             "description": new_product.description,
-            "id_category": new_product.id_category,
             "images": [img.name for img in new_product.images]  # daftar path gambar
         }
     }), 201
@@ -139,7 +126,6 @@ def update_product(product_id):
     price = request.form.get("price")
     quantity = request.form.get("quantity")
     description = request.form.get("description")
-    id_category = request.form.get("id_category")
 
     if name:
         product.name = name
@@ -149,8 +135,6 @@ def update_product(product_id):
         product.quantity = quantity
     if description is not None:
         product.description = description
-    if id_category:
-        product.id_category = id_category
 
     # ===== Hapus gambar lama =====
     removed_images = request.form.getlist("removedImages[]")  # frontend kirim array
@@ -190,7 +174,6 @@ def update_product(product_id):
             "quantity": product.quantity,
             "price": product.price,
             "description": product.description,
-            "id_category": product.id_category,
             "images": [img.name for img in product.images]
         }
     }), 200

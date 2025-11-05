@@ -48,7 +48,7 @@ def create_app(config_name='development'):
     app.register_blueprint(reseller_bp, url_prefix='/api/reseller')
     
     # Import models
-    from .models import admin, category, product, image, transaction, detail_transaction, return_transaction, return_detail_transaction, reseller, stock_out, stock
+    from .models import admin, product, image, transaction, detail_transaction, return_transaction, return_detail_transaction, reseller, stock_out, stock
     
     db.init_app(app)
     
