@@ -41,16 +41,9 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
       ),
       child: Column(
         children: [
-          // Handle
           _buildHandle(),
-
-          // Header
           _buildHeader(),
-
-          // Cart Items
           _buildCartItemsList(),
-
-          // Summary and Checkout
           _buildCheckoutSection(),
         ],
       ),
@@ -168,65 +161,7 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          // Summary Rows
-          _buildSummaryRow('Total Item', '${widget.totalItems} pcs'),
-          SizedBox(height: 8),
-          _buildSummaryRow('Total Produk', '${widget.cartItems.length} jenis'),
-          SizedBox(height: 16),
-          Divider(color: Color(0xFFEEEEEE)),
-          SizedBox(height: 16),
-
-          // Total Price
-          _buildTotalPrice(),
-          SizedBox(height: 20),
-
-          // Checkout Button
-          _buildCheckoutButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(fontSize: 14, color: Color(0xFF666666))),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF333333),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTotalPrice() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Total Harga',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF333333),
-          ),
-        ),
-        Text(
-          'Rp ${PriceFormatter.format(widget.totalPrice)}',
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF4CAF50),
-          ),
-        ),
-      ],
+      child: _buildCheckoutButton(),
     );
   }
 
@@ -238,7 +173,7 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
         onPressed: widget.isSubmitting
             ? null
             : () {
-                Navigator.pop(context); // Close bottom sheet
+                Navigator.pop(context);
                 widget.onSubmitOrder();
               },
         style: ElevatedButton.styleFrom(
