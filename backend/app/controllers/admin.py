@@ -311,10 +311,10 @@ def accept_transaction(transaction_id):
         return jsonify({"error": "Transaction not found"}), 404
 
     # Update status transaksi menjadi 'accepted'
-    transaction.status = 'accepted'
+    transaction.status = 'completed'
     db.session.commit()
 
-    return jsonify({"message": f"Transaction {transaction_id} has been accepted."}), 200
+    return jsonify({"message": f"Transaction {transaction_id} has been completed."}), 200
 
 
 def reject_transaction(transaction_id):
@@ -325,10 +325,10 @@ def reject_transaction(transaction_id):
         return jsonify({"error": "Transaction not found"}), 404
 
     # Update status transaksi menjadi 'rejected'
-    transaction.status = 'rejected'
+    transaction.status = 'cancelled'
     db.session.commit()
 
-    return jsonify({"message": f"Transaction {transaction_id} has been rejected."}), 200
+    return jsonify({"message": f"Transaction {transaction_id} has been cancelled."}), 200
 
 
 def get_all_return_transactions():
@@ -434,7 +434,7 @@ def accept_return_transaction(return_transaction_id):
         return jsonify({"error": "Return Transaction not found"}), 404
 
     # Update status return menjadi 'accepted'
-    return_transaction.status = 'accepted'
+    return_transaction.status = 'approved'
     db.session.commit()
 
     return jsonify({"message": f"Return Transaction {return_transaction_id} has been accepted."}), 200

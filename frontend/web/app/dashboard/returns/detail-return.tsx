@@ -97,7 +97,7 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
 
     const getStatusColor = (status: string) => {
         switch (status) {
-            case "accepted":
+            case "approved":
                 return "success";
             case "rejected":
                 return "danger";
@@ -109,7 +109,7 @@ export const DetailReturn: React.FC<ReturnTransactionDetailModalProps> = ({
 
     const getStatusLabel = (status: string) => {
         switch (status) {
-            case "accepted":
+            case "approved":
                 return "Diterima";
             case "rejected":
                 return "Ditolak";

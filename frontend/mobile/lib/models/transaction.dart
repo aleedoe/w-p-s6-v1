@@ -45,7 +45,7 @@ class Transaction {
       case 'processing':
         return 'Diproses';
       case 'cancelled':
-        return 'Dibatalkan';
+        return 'Ditolak';
       default:
         return status;
     }

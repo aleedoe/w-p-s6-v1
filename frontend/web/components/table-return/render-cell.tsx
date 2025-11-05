@@ -55,7 +55,7 @@ export const RenderCell = ({ returnTransaction, columnKey }: Props) => {
     // Function untuk mendapatkan warna status
     const getStatusColor = (status: string) => {
         switch (status) {
-            case 'accepted':
+            case 'approved':
                 return 'success';
             case 'rejected':
                 return 'danger';
@@ -68,7 +68,7 @@ export const RenderCell = ({ returnTransaction, columnKey }: Props) => {
     // Function untuk mendapatkan label status
     const getStatusLabel = (status: string) => {
         switch (status) {
-            case 'accepted':
+            case 'approved':
                 return 'Diterima';
             case 'rejected':
                 return 'Ditolak';
