@@ -82,7 +82,18 @@ def res_get_stocks(id_reseller: int):
                 .correlate(Product)
                 .scalar_subquery(),
                 0
-            ).label("total_out")
+            ).label("total_out"),
+            func.coalesce(
+                db.session.query(func.sum(ReturnDetailTransaction.quantity))
+                .join(ReturnTransaction, ReturnTransaction.id == ReturnDetailTransaction.id_return_transaction)
+                .filter(
+                    ReturnTransaction.id_reseller == id_reseller,
+                    ReturnDetailTransaction.id_product == Product.id
+                )
+                .correlate(Product)
+                .scalar_subquery(),
+                0
+            ).label("total_return")
         )
         .join(DetailTransaction, DetailTransaction.id_product == Product.id)
         .join(Transaction, Transaction.id == DetailTransaction.id_transaction)
@@ -96,15 +107,15 @@ def res_get_stocks(id_reseller: int):
     total_quantity = 0
 
     for s in stocks:
-        # hitung stok akhir
-        current_stock = (s.total_in or 0) - (s.total_out or 0)
+        # sekarang return dihitung sebagai pengurangan stok
+        current_stock = (s.total_in or 0) - (s.total_out or 0) - (s.total_return or 0)
 
         # ambil gambar produk
         images = db.session.query(Image.name).filter(Image.id_product == s.id_product).all()
         image_list = [img.name for img in images]
 
         total_products += 1
-        total_quantity += current_stock
+        total_quantity += int(current_stock)
 
         result.append({
             "id_product": s.id_product,
@@ -113,6 +124,7 @@ def res_get_stocks(id_reseller: int):
             "description": s.description,
             "total_in": int(s.total_in),
             "total_out": int(s.total_out),
+            "total_return": int(s.total_return),
             "current_stock": int(current_stock),
             "images": image_list
         })
@@ -123,6 +135,7 @@ def res_get_stocks(id_reseller: int):
         "total_quantity": total_quantity,
         "details": result
     })
+
 
 
 def res_get_transactions(id_reseller: int):
