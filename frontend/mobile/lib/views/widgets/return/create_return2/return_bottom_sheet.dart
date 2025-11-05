@@ -49,7 +49,7 @@ class _ReturnBottomSheetState extends State<ReturnBottomSheet> {
           _buildHandle(),
           _buildHeader(),
           _buildReturnItemsList(),
-          _buildSummaryAndSubmit(),
+          _buildSubmitButtonSection(),
         ],
       ),
     );
@@ -143,7 +143,7 @@ class _ReturnBottomSheetState extends State<ReturnBottomSheet> {
     );
   }
 
-  Widget _buildSummaryAndSubmit() {
+  Widget _buildSubmitButtonSection() {
     return Container(
       padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -160,62 +160,7 @@ class _ReturnBottomSheetState extends State<ReturnBottomSheet> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          _buildSummaryRow(
-            'Total Produk Return',
-            '${widget.totalReturnProducts} jenis',
-          ),
-          SizedBox(height: 8),
-          _buildSummaryRow(
-            'Total Item Return',
-            '${widget.totalReturnItems} pcs',
-          ),
-          SizedBox(height: 16),
-          Divider(color: Color(0xFFEEEEEE)),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Total Return',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF333333),
-                ),
-              ),
-              Text(
-                'Rp ${_formatPrice(widget.totalReturnPrice)}',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFFFF6B6B),
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          _buildSubmitButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(fontSize: 14, color: Color(0xFF666666))),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF333333),
-          ),
-        ),
-      ],
+      child: _buildSubmitButton(),
     );
   }
 
@@ -255,14 +200,5 @@ class _ReturnBottomSheetState extends State<ReturnBottomSheet> {
               ),
       ),
     );
-  }
-
-  String _formatPrice(double price) {
-    return price
-        .toStringAsFixed(0)
-        .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
   }
 }
