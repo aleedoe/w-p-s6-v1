@@ -40,7 +40,7 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
           _buildHandle(),
           _buildHeader(),
           _buildCartItems(),
-          _buildSummaryAndSubmit(),
+          _buildSubmitButtonSection(),
         ],
       ),
     );
@@ -248,8 +248,8 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
     );
   }
 
-  /// Builds summary and submit section
-  Widget _buildSummaryAndSubmit() {
+  /// Builds submit button section
+  Widget _buildSubmitButtonSection() {
     return Container(
       padding: EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -266,33 +266,7 @@ class _CartBottomSheetState extends State<CartBottomSheet> {
           ),
         ],
       ),
-      child: Column(
-        children: [
-          _buildSummaryRow('Total Item', '${widget.totalItems} pcs'),
-          SizedBox(height: 8),
-          _buildSummaryRow('Total Produk', '${widget.cartItems.length} jenis'),
-          SizedBox(height: 20),
-          _buildSubmitButton(),
-        ],
-      ),
-    );
-  }
-
-  /// Builds summary row
-  Widget _buildSummaryRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: TextStyle(fontSize: 14, color: Color(0xFF666666))),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF333333),
-          ),
-        ),
-      ],
+      child: _buildSubmitButton(),
     );
   }
 
