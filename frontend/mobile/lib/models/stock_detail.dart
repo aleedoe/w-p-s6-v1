@@ -8,6 +8,7 @@ class StockDetail {
   final String productName;
   final int totalIn;
   final int totalOut;
+  final String? expiredDate;
 
   StockDetail({
     required this.currentStock,
@@ -18,6 +19,7 @@ class StockDetail {
     required this.productName,
     required this.totalIn,
     required this.totalOut,
+    this.expiredDate,
   });
 
   factory StockDetail.fromJson(Map<String, dynamic> json) {
@@ -30,6 +32,7 @@ class StockDetail {
       productName: json['product_name'] ?? '',
       totalIn: json['total_in'] ?? 0,
       totalOut: json['total_out'] ?? 0,
+      expiredDate: json['expired_date']?.toString(),
     );
   }
 
@@ -43,6 +46,7 @@ class StockDetail {
       'product_name': productName,
       'total_in': totalIn,
       'total_out': totalOut,
+      'expired_date': expiredDate,
     };
   }
 }
