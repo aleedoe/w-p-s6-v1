@@ -179,7 +179,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
                         />
 
                         {/* Dropzone */}
-                        <div
+                        {/* <div
                             {...getRootProps()}
                             className={`mt-4 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 cursor-pointer transition
                                 ${
@@ -197,10 +197,10 @@ export const EditProduct: React.FC<EditProductProps> = ({
                             <p className="text-xs text-gray-400 mt-1">
                                 Hanya file gambar (jpg, png, jpeg) yang diperbolehkan
                             </p>
-                        </div>
+                        </div> */}
 
                         {/* Preview Existing Images */}
-                        {existingImages.length > 0 && (
+                        {/* {existingImages.length > 0 && (
                             <div className="grid grid-cols-3 gap-3 mt-4">
                                 {existingImages.map((img, i) => (
                                     <div
@@ -227,10 +227,10 @@ export const EditProduct: React.FC<EditProductProps> = ({
                                     </div>
                                 ))}
                             </div>
-                        )}
+                        )} */}
 
                         {/* Preview New Uploaded Images */}
-                        {files.length > 0 && (
+                        {/* {files.length > 0 && (
                             <div className="grid grid-cols-3 gap-3 mt-4">
                                 {files.map((file, i) => (
                                     <div
@@ -256,7 +256,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
                                     </div>
                                 ))}
                             </div>
-                        )}
+                        )} */}
                     </ModalBody>
                     <ModalFooter>
                         <Button color="danger" variant="flat" onClick={onClose}>
