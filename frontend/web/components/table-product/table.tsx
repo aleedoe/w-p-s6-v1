@@ -12,11 +12,13 @@ import {
 } from "@heroui/table";
 import { productService, Product } from "@/services/productService";
 
+// Added expired date column in columns list
 const columns = [
-  { name: "NO", uid: "no" },        // ganti ID jadi nomor urut
+  { name: "NO", uid: "no" },
   { name: "NAME", uid: "name" },
   { name: "PRICE", uid: "price" },
   { name: "QUANTITY", uid: "quantity" },
+  { name: "EXPIRED DATE", uid: "expired_date" },
   { name: "ACTIONS", uid: "actions" },
 ];
 
@@ -54,7 +56,12 @@ export const TableProduct = () => {
           )}
         </TableHeader>
         <TableBody
-          items={products.map((p, index) => ({ ...p, no: index + 1 }))} // inject nomor urut
+          // Ensure expired_date gets passed through even if it is null
+          items={products.map((p, index) => ({
+            ...p,
+            no: index + 1,
+            expired_date: p.expired_date || "-", // fallback for null values
+          }))}
           isLoading={loading}
           loadingContent={<div className="p-4">Loading...</div>}
         >
@@ -62,7 +69,13 @@ export const TableProduct = () => {
             <TableRow key={item.id}>
               {(columnKey) => (
                 <TableCell>
-                  <RenderCell user={item as any} columnKey={columnKey} />
+                  {/* handle expired_date display formatting here if needed */}
+                  {columnKey === "expired_date"
+                    ? (item.expired_date && item.expired_date !== "-"
+                        ? item.expired_date
+                        : "-")
+                    : <RenderCell user={item as any} columnKey={columnKey} />
+                  }
                 </TableCell>
               )}
             </TableRow>

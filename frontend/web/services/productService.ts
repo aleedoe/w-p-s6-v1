@@ -8,6 +8,7 @@ export interface Product {
     quantity: number;
     description?: string;
     images?: string[]; // biar bisa nampilin gambar
+    expired_date?: string | null; // tanggal kadaluarsa, nullable
 }
 
 export const productService = {
@@ -27,6 +28,7 @@ export const productService = {
         quantity: number;
         description?: string;
         images?: File[]; // untuk upload gambar
+        expired_date?: string | null; // string (YYYY-MM-DD) atau null
     }) {
         // kalau backend butuh multipart:
         const formData = new FormData();
@@ -34,6 +36,8 @@ export const productService = {
         formData.append("price", String(payload.price));
         formData.append("quantity", String(payload.quantity));
         if (payload.description) formData.append("description", payload.description);
+        if (payload.expired_date)
+            formData.append("expired_date", payload.expired_date);
 
         if (payload.images) {
             payload.images.forEach((file) => {
@@ -47,12 +51,25 @@ export const productService = {
         return res.data;
     },
 
-    async updateProduct(id: number, payload: any, files: File[]) {
+    async updateProduct(
+        id: number,
+        payload: {
+            name: string;
+            price: number;
+            quantity: number;
+            description?: string;
+            expired_date?: string | null;
+            removedImages?: string[];
+        },
+        files: File[]
+    ) {
         const formData = new FormData();
         formData.append("name", payload.name);
         formData.append("price", String(payload.price));
         formData.append("quantity", String(payload.quantity));
         formData.append("description", payload.description || "");
+        if (payload.expired_date)
+            formData.append("expired_date", payload.expired_date);
 
         // Kirim daftar gambar yang akan dihapus
         if (payload.removedImages && payload.removedImages.length > 0) {
