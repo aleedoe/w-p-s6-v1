@@ -3,6 +3,29 @@ from flask_jwt_extended import create_access_token
 from sqlalchemy import func, distinct
 from ..models import Reseller, db, Product,  DetailTransaction, Image, Transaction, ReturnTransaction, ReturnDetailTransaction, ResellerStockOut, ResellerStockOutDetail
 from sqlalchemy.exc import SQLAlchemyError
+from datetime import datetime
+
+
+MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+def format_expired_date(date_value):
+    """Format tanggal menjadi: Sun, 30 Nov 2025"""
+    if not date_value:
+        return None
+    try:
+        # Pastikan parsing ISO format
+        dt = datetime.fromisoformat(str(date_value).replace("Z", ""))
+
+        day_name = DAYS[dt.weekday()]
+        month_name = MONTHS[dt.month - 1]
+
+        return f"{day_name}, {dt.day:02d} {month_name} {dt.year}"
+    except:
+        return str(date_value)  # fallback kalau gagal parse
+
 
 def reseller_login():
     data = request.get_json()
@@ -69,6 +92,7 @@ def res_get_stocks(id_reseller: int):
         db.session.query(
             Product.id.label("id_product"),
             Product.name.label("product_name"),
+            Product.expired_date.label("expired_date"),
             Product.price.label("price"),
             Product.description.label("description"),
             func.coalesce(func.sum(DetailTransaction.quantity), 0).label("total_in"),
@@ -98,7 +122,7 @@ def res_get_stocks(id_reseller: int):
         .join(DetailTransaction, DetailTransaction.id_product == Product.id)
         .join(Transaction, Transaction.id == DetailTransaction.id_transaction)
         .filter(Transaction.id_reseller == id_reseller)
-        .group_by(Product.id, Product.name, Product.price, Product.description)
+        .group_by(Product.id, Product.name, Product.expired_date, Product.price, Product.description)
         .all()
     )
 
@@ -107,10 +131,10 @@ def res_get_stocks(id_reseller: int):
     total_quantity = 0
 
     for s in stocks:
-        # sekarang return dihitung sebagai pengurangan stok
+        # Hitung stok (in - out - return)
         current_stock = (s.total_in or 0) - (s.total_out or 0) - (s.total_return or 0)
 
-        # ambil gambar produk
+        # Ambil list gambar
         images = db.session.query(Image.name).filter(Image.id_product == s.id_product).all()
         image_list = [img.name for img in images]
 
@@ -120,6 +144,7 @@ def res_get_stocks(id_reseller: int):
         result.append({
             "id_product": s.id_product,
             "product_name": s.product_name,
+            "expired_date": format_expired_date(s.expired_date),  # ⬅ sudah diformat
             "price": float(s.price),
             "description": s.description,
             "total_in": int(s.total_in),
