@@ -15,12 +15,12 @@ import { returnService, ReturnTransaction } from "@/services/returnService";
 
 const columns = [
     { name: "NO", uid: "no" },
-    { name: "RESELLER NAME", uid: "reseller_name" },
+    { name: "NAMA RESELLER", uid: "reseller_name" },
     { name: "STATUS", uid: "status" },
-    { name: "TOTAL ITEMS", uid: "total_items" },
-    { name: "TOTAL PRICE", uid: "total_price" },
-    { name: "RETURN DATE", uid: "return_date" },
-    { name: "ACTIONS", uid: "actions" },
+    { name: "JUMLAH ITEM", uid: "total_items" },
+    { name: "TOTAL HARGA", uid: "total_price" },
+    { name: "TANGGAL RETUR", uid: "return_date" },
+    { name: "AKSI", uid: "actions" },
 ];
 
 export const TableReturn = () => {

@@ -50,36 +50,35 @@ export const SidebarWrapper = () => {
       >
         <div className={Sidebar.Header()}>
           <div className="flex items-center gap-2">
-            <AcmeLogo />
             <h3 className="text-xl font-medium m-0 text-default-900 whitespace-nowrap">
-              {"Instagram"}
+              {"ARDA ELECTRIC"}
             </h3>
           </div>
         </div>
         <div className="flex flex-col justify-between h-full">
           <div className={Sidebar.Body()}>
             <SidebarItem
-              title="Home"
+              title="Beranda"
               icon={<HomeIcon />}
               isActive={pathname === "/dashboard"}
               href="/dashboard"
             />
-            <SidebarMenu title="Main Menu">
+            <SidebarMenu title="Menu Utama">
               <SidebarItem
                 isActive={pathname === "/dashboard/products"}
-                title="Products"
+                title="Produk"
                 icon={<ProductsIcon />}
                 href="/dashboard/products"
               />
               <SidebarItem
                 isActive={pathname === "/dashboard/orders"}
-                title="Orders"
+                title="Pesanan"
                 icon={<ShoppingCartIcon />}
                 href="/dashboard/orders"
               />
               <SidebarItem
                 isActive={pathname === "/dashboard/returns"}
-                title="Returns"
+                title="Retur"
                 icon={<ChangeLogIcon />}
                 href="/dashboard/returns"
               />

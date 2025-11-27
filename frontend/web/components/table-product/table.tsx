@@ -15,11 +15,11 @@ import { productService, Product } from "@/services/productService";
 // Added expired date column in columns list
 const columns = [
   { name: "NO", uid: "no" },
-  { name: "NAME", uid: "name" },
-  { name: "PRICE", uid: "price" },
-  { name: "QUANTITY", uid: "quantity" },
-  { name: "EXPIRED DATE", uid: "expired_date" },
-  { name: "ACTIONS", uid: "actions" },
+  { name: "NAMA", uid: "name" },
+  { name: "HARGA", uid: "price" },
+  { name: "JUMLAH", uid: "quantity" },
+  { name: "TGL KADALUARSA", uid: "expired_date" },
+  { name: "AKSI", uid: "actions" },
 ];
 
 export const TableProduct = () => {

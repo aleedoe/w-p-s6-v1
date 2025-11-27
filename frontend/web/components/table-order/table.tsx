@@ -17,12 +17,12 @@ import {
 
 const columns = [
   { name: "NO", uid: "no" },
-  { name: "RESELLER NAME", uid: "reseller_name" },
-  { name: "STATUS", uid: "status" }, // Tambahkan kolom STATUS
-  { name: "TOTAL ITEMS", uid: "total_items" },
-  { name: "TOTAL PRICE", uid: "total_price" },
-  { name: "TRANSACTION DATE", uid: "transaction_date" },
-  { name: "ACTIONS", uid: "actions" },
+  { name: "NAMA RESELLER", uid: "reseller_name" },
+  { name: "STATUS", uid: "status" },
+  { name: "JUMLAH ITEM", uid: "total_items" },
+  { name: "TOTAL HARGA", uid: "total_price" },
+  { name: "TANGGAL TRANSAKSI", uid: "transaction_date" },
+  { name: "AKSI", uid: "actions" },
 ];
 
 export const TableTransaction = () => {
