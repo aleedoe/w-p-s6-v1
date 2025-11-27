@@ -13,6 +13,9 @@ import {
 import { productService } from "@/services/productService";
 import { Input, Textarea } from "@heroui/input";
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from "@heroui/dropdown";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
+import type { DateValue } from "@react-types/datepicker";
 
 export const AddProduct = () => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -22,6 +25,7 @@ export const AddProduct = () => {
         price: "",
         quantity: "",
         description: "",
+        expired_date: null as string | null, // <-- add expired_date (ISO string or null)
     });
 
     const [files, setFiles] = useState<File[]>([]);
@@ -43,6 +47,17 @@ export const AddProduct = () => {
         setForm((prev) => ({ ...prev, [key]: value }));
     };
 
+    // Handler for date change from heroui datepicker
+    const handleDateChange = (date: DateValue | null) => {
+        if (date) {
+            // Convert DateValue to YYYY-MM-DD string
+            const isoDate = `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+            setForm((prev) => ({ ...prev, expired_date: isoDate }));
+        } else {
+            setForm((prev) => ({ ...prev, expired_date: null }));
+        }
+    };
+
     // Dropzone setup
     const onDrop = useCallback((acceptedFiles: File[]) => {
         setFiles((prev) => [...prev, ...acceptedFiles]);
@@ -62,6 +77,7 @@ export const AddProduct = () => {
                 price: Number(form.price),
                 quantity: Number(form.quantity),
                 description: form.description,
+                expired_date: form.expired_date ? form.expired_date : null, // <-- include expired_date
                 images: files, // ⬅️ KIRIM FILE DI SINI
             });
 
@@ -72,6 +88,7 @@ export const AddProduct = () => {
                 price: "",
                 quantity: "",
                 description: "",
+                expired_date: null,
             });
             setSelectedKeys(new Set());
             setFiles([]);
@@ -83,14 +100,13 @@ export const AddProduct = () => {
         }
     };
 
-
     return (
         <div>
             <Button onPress={onOpen} color="primary">
                 Tambah Produk
             </Button>
 
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center" size="lg">
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center" size="lg" isDismissable={false} shouldBlockScroll={false}>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -117,6 +133,17 @@ export const AddProduct = () => {
                                     onChange={(e) => handleChange("quantity", e.target.value)}
                                 />
 
+                                {/* Date Picker for Expired Date */}
+                                <div className="my-2">
+                                    <DatePicker
+                                        label="Tanggal Kadaluarsa (opsional)"
+                                        variant="bordered"
+                                        value={form.expired_date ? parseDate(form.expired_date) : null}
+                                        onChange={handleDateChange}
+                                        isReadOnly={false}
+                                    />
+                                </div>
+
                                 {/* Textarea untuk deskripsi */}
                                 <Textarea
                                     label="Deskripsi"
@@ -127,7 +154,7 @@ export const AddProduct = () => {
                                 />
 
                                 {/* Dropzone */}
-                                <div
+                                {/* <div
                                     {...getRootProps()}
                                     className={`mt-4 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-6 cursor-pointer transition
                     ${isDragActive ? "border-blue-500 bg-blue-50" : "border-gray-300 bg-gray-50 hover:border-blue-400"}`}
@@ -137,10 +164,10 @@ export const AddProduct = () => {
                                         {isDragActive ? "Lepaskan file di sini ..." : "Tarik & lepas gambar atau klik untuk memilih"}
                                     </p>
                                     <p className="text-xs text-gray-400 mt-1">Hanya file gambar (jpg, png, jpeg) yang diperbolehkan</p>
-                                </div>
+                                </div> */}
 
                                 {/* Preview Images */}
-                                {files.length > 0 && (
+                                {/* {files.length > 0 && (
                                     <div className="grid grid-cols-3 gap-3 mt-4">
                                         {files.map((file, i) => (
                                             <div
@@ -162,7 +189,7 @@ export const AddProduct = () => {
                                             </div>
                                         ))}
                                     </div>
-                                )}
+                                )} */}
                             </ModalBody>
                             <ModalFooter>
                                 <Button color="danger" variant="flat" onClick={onClose}>

@@ -16,6 +16,9 @@ import {
     DropdownMenu,
     DropdownTrigger,
 } from "@heroui/dropdown";
+import { DatePicker } from "@heroui/date-picker";
+import { parseDate } from "@internationalized/date";
+import type { DateValue } from "@react-types/datepicker";
 import { productService } from "@/services/productService";
 
 interface EditProductProps {
@@ -34,6 +37,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
         price: "",
         quantity: "",
         description: "",
+        expired_date: null as string | null, // <-- add expired_date (ISO string or null)
     });
     const [files, setFiles] = useState<File[]>([]);
     const [existingImages, setExistingImages] = useState<string[]>([]);
@@ -53,6 +57,17 @@ export const EditProduct: React.FC<EditProductProps> = ({
 
     const handleChange = (key: string, value: string) => {
         setForm((prev) => ({ ...prev, [key]: value }));
+    };
+
+    // Handler for date change from heroui datepicker
+    const handleDateChange = (date: DateValue | null) => {
+        if (date) {
+            // Convert DateValue to YYYY-MM-DD string
+            const isoDate = `${date.year}-${String(date.month).padStart(2, "0")}-${String(date.day).padStart(2, "0")}`;
+            setForm((prev) => ({ ...prev, expired_date: isoDate }));
+        } else {
+            setForm((prev) => ({ ...prev, expired_date: null }));
+        }
     };
 
     // Dropzone setup
@@ -76,6 +91,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
                         price: String(data.price || ""),
                         quantity: String(data.quantity || ""),
                         description: data.description || "",
+                        expired_date: data.expired_date || null, // <-- set expired_date from API
                     });
 
                     setExistingImages(data.images || []);
@@ -99,6 +115,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
                     price: Number(form.price),
                     quantity: Number(form.quantity),
                     description: form.description,
+                    expired_date: form.expired_date ? form.expired_date : null, // <-- include expired_date
                     removedImages, // kirim ke backend
                 },
                 files
@@ -114,7 +131,7 @@ export const EditProduct: React.FC<EditProductProps> = ({
     };
 
     return (
-        <Modal isOpen={isOpen} onOpenChange={onClose} placement="top-center" size="lg">
+        <Modal isOpen={isOpen} onOpenChange={onClose} placement="top-center" size="lg" isDismissable={false} shouldBlockScroll={false}>
             <ModalContent>
                 <>
                     <ModalHeader className="flex flex-col gap-1">
@@ -141,6 +158,18 @@ export const EditProduct: React.FC<EditProductProps> = ({
                             value={form.quantity}
                             onChange={(e) => handleChange("quantity", e.target.value)}
                         />
+
+                        {/* Date Picker for Expired Date */}
+                        <div className="my-2">
+                            <DatePicker
+                                label="Tanggal Kadaluarsa (opsional)"
+                                variant="bordered"
+                                value={form.expired_date ? parseDate(form.expired_date) : null}
+                                onChange={handleDateChange}
+                                isReadOnly={false}
+                            />
+                        </div>
+
                         <Textarea
                             label="Deskripsi"
                             placeholder="Masukkan deskripsi produk"
