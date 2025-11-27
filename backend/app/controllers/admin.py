@@ -5,55 +5,46 @@ from sqlalchemy import func
 from werkzeug.utils import secure_filename
 import os
 import uuid
+from datetime import datetime
 
 
 def admin_login():
     data = request.get_json()
     print(data)
     
-    # Mencari admin berdasarkan email
     admin = Admin.query.filter_by(email=data.get('email')).first()
     
-    # Cek apakah admin ditemukan dan password valid
     if admin and admin.check_password(data.get('password')):
-        # Membuat token akses
         access_token = admin.generate_auth_token()
-        
-        # Menyusun response dengan data yang diinginkan (name, email, access_token)
         return jsonify({
             "id": admin.id,
             "name": admin.name,
             "email": admin.email,
             "access_token": access_token
         }), 200
-    
     return jsonify({"msg": "Bad email or password"}), 401
 
 
 def get_all_products():
     products = Product.query.all()
-    
     result = []
     for product in products:
         result.append({
             "id": product.id,
             "name": product.name,
             "quantity": product.quantity,
-            "price": product.price
+            "price": product.price,
+            "expired_date": product.expired_date.strftime("%Y-%m-%d") if product.expired_date else None
         })
-    
     return jsonify(result), 200
 
 
 def get_product_detail(product_id):
     product = Product.query.filter_by(id=product_id).first()
-    
     if not product:
         return jsonify({"msg": "Product not found"}), 404
     
-    # Ambil semua gambar terkait produk
     images = [img.name for img in product.images]
-    
     result = {
         "id": product.id,
         "name": product.name,
@@ -61,8 +52,8 @@ def get_product_detail(product_id):
         "price": product.price,
         "quantity": product.quantity,
         "description": product.description,
+        "expired_date": product.expired_date.strftime("%Y-%m-%d") if product.expired_date else None
     }
-    
     return jsonify(result), 200
 
 
@@ -71,30 +62,34 @@ def create_product():
     price = request.form.get("price")
     quantity = request.form.get("quantity", 0)
     description = request.form.get("description", "")
+    expired_date_str = request.form.get("expired_date")
+
+    expired_date = None
+    if expired_date_str:
+        try:
+            expired_date = datetime.strptime(expired_date_str, "%Y-%m-%d")
+        except Exception:
+            return jsonify({"msg": "Invalid expired_date format, must be YYYY-MM-DD"}), 400
 
     new_product = Product(
         name=name,
         quantity=quantity,
         price=price,
         description=description,
+        expired_date=expired_date,
     )
 
     db.session.add(new_product)
-    db.session.flush()  # supaya id_product langsung tersedia
+    db.session.flush()
 
-    # Upload multiple images
     files = request.files.getlist("images")
     for file in files:
         if file:
-            # Ambil ekstensi asli
             ext = os.path.splitext(file.filename)[1]
-            # Generate nama random
             filename = f"{uuid.uuid4().hex}{ext}"
             filename = secure_filename(filename)
-
             save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
             file.save(save_path)
-
             new_image = Image(
                 id_product=new_product.id,
                 name=filename
@@ -111,7 +106,8 @@ def create_product():
             "quantity": new_product.quantity,
             "price": new_product.price,
             "description": new_product.description,
-            "images": [img.name for img in new_product.images]  # daftar path gambar
+            "expired_date": new_product.expired_date.strftime("%Y-%m-%d") if new_product.expired_date else None,
+            "images": [img.name for img in new_product.images]
         }
     }), 201
 
@@ -121,11 +117,11 @@ def update_product(product_id):
     if not product:
         return jsonify({"msg": "Product not found"}), 404
 
-    # Ambil data dari form-data
     name = request.form.get("name")
     price = request.form.get("price")
     quantity = request.form.get("quantity")
     description = request.form.get("description")
+    expired_date_str = request.form.get("expired_date")
 
     if name:
         product.name = name
@@ -135,31 +131,32 @@ def update_product(product_id):
         product.quantity = quantity
     if description is not None:
         product.description = description
+    if expired_date_str is not None:
+        if expired_date_str == "":
+            product.expired_date = None
+        else:
+            try:
+                product.expired_date = datetime.strptime(expired_date_str, "%Y-%m-%d")
+            except Exception:
+                return jsonify({"msg": "Invalid expired_date format, must be YYYY-MM-DD"}), 400
 
-    # ===== Hapus gambar lama =====
-    removed_images = request.form.getlist("removedImages[]")  # frontend kirim array
+    removed_images = request.form.getlist("removedImages[]")
     for filename in removed_images:
         img = Image.query.filter_by(id_product=product.id, name=filename).first()
         if img:
-            # hapus record di DB
             db.session.delete(img)
-
-            # hapus file fisik
             file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
             if os.path.exists(file_path):
                 os.remove(file_path)
 
-    # ===== Tambahkan gambar baru =====
     files = request.files.getlist("images")
     for file in files:
         if file:
             ext = os.path.splitext(file.filename)[1]
             filename = f"{uuid.uuid4().hex}{ext}"
             filename = secure_filename(filename)
-
             save_path = os.path.join(current_app.config["UPLOAD_FOLDER"], filename)
             file.save(save_path)
-
             relative_path = f"{filename}"
             new_image = Image(id_product=product.id, name=relative_path)
             db.session.add(new_image)
@@ -174,6 +171,7 @@ def update_product(product_id):
             "quantity": product.quantity,
             "price": product.price,
             "description": product.description,
+            "expired_date": product.expired_date.strftime("%Y-%m-%d") if product.expired_date else None,
             "images": [img.name for img in product.images]
         }
     }), 200
@@ -184,14 +182,12 @@ def delete_product(product_id):
     if not product:
         return jsonify({"msg": "Product not found"}), 404
 
-    # Hapus gambar dari DB & storage
-    for img in product.images:  # relasi ke tabel Image
+    for img in product.images:
         file_path = os.path.join(current_app.config["UPLOAD_FOLDER"], img.name)
         if os.path.exists(file_path):
             os.remove(file_path)
         db.session.delete(img)
 
-    # Hapus produk
     db.session.delete(product)
     db.session.commit()
 
@@ -199,11 +195,10 @@ def delete_product(product_id):
 
 
 def get_all_transactions():
-    # Query dengan join
     transactions = (
         db.session.query(
             Transaction.id.label("id_transaction"),
-            Transaction.status.label("status"),  # TAMBAHKAN INI - field status dari Transaction
+            Transaction.status.label("status"),
             Reseller.id.label("reseller_id"),
             Reseller.name.label("reseller_name"),
             Transaction.created_at.label("transaction_date"),
@@ -213,16 +208,15 @@ def get_all_transactions():
         .join(Reseller, Transaction.id_reseller == Reseller.id)
         .join(DetailTransaction, Transaction.id == DetailTransaction.id_transaction)
         .join(Product, DetailTransaction.id_product == Product.id)
-        .group_by(Transaction.id, Transaction.status, Reseller.name, Transaction.created_at)  # TAMBAHKAN Transaction.status
+        .group_by(Transaction.id, Transaction.status, Reseller.name, Transaction.created_at)
         .all()
     )
 
-    # Format hasil ke JSON
     result = []
     for t in transactions:
         result.append({
             "id_transaction": t.id_transaction,
-            "status": t.status,  # TAMBAHKAN INI - field status dalam response
+            "status": t.status,
             "id_reseller": t.reseller_id,
             "reseller_name": t.reseller_name,
             "transaction_date": t.transaction_date.strftime("%Y-%m-%d %H:%M:%S"),
@@ -234,7 +228,6 @@ def get_all_transactions():
 
 
 def get_transaction_detail(transaction_id):
-    # Ambil transaksi utama
     transaction = (
         db.session.query(Transaction)
         .join(Reseller, Transaction.id_reseller == Reseller.id)
@@ -245,27 +238,25 @@ def get_transaction_detail(transaction_id):
     if not transaction:
         return jsonify({"error": "Transaction not found"}), 404
 
-    # Ambil detail per produk
     details = (
         db.session.query(
             Product.id.label("id_product"),
             Product.name.label("product_name"),
             Product.price.label("product_price"),
-            DetailTransaction.quantity.label("quantity")
+            DetailTransaction.quantity.label("quantity"),
+            Product.expired_date.label("expired_date")
         )
         .join(Product, DetailTransaction.id_product == Product.id)
         .filter(DetailTransaction.id_transaction == transaction_id)
         .all()
     )
 
-    # Hitung total item & total harga
     total_items = sum(d.quantity for d in details)
     total_price = sum(d.quantity * d.product_price for d in details)
 
-    # Format hasil ke JSON
     result = {
         "id_transaction": transaction.id,
-        "status": transaction.status,  # TAMBAHKAN INI - field status dalam response detail
+        "status": transaction.status,
         "id_reseller": transaction.id_reseller,
         "reseller_name": transaction.reseller.name,
         "transaction_date": transaction.created_at.strftime("%Y-%m-%d %H:%M:%S"),
@@ -275,7 +266,8 @@ def get_transaction_detail(transaction_id):
                 "product_name": d.product_name,
                 "quantity": d.quantity,
                 "price": float(d.product_price),
-                "subtotal": float(d.quantity * d.product_price)
+                "subtotal": float(d.quantity * d.product_price),
+                "expired_date": d.expired_date.strftime("%Y-%m-%d") if d.expired_date else None
             }
             for d in details
         ],
@@ -287,35 +279,24 @@ def get_transaction_detail(transaction_id):
 
 
 def accept_transaction(transaction_id):
-    # Cari transaksi berdasarkan ID
     transaction = db.session.query(Transaction).filter(Transaction.id == transaction_id).first()
-
     if not transaction:
         return jsonify({"error": "Transaction not found"}), 404
-
-    # Update status transaksi menjadi 'accepted'
     transaction.status = 'completed'
     db.session.commit()
-
     return jsonify({"message": f"Transaction {transaction_id} has been completed."}), 200
 
 
 def reject_transaction(transaction_id):
-    # Cari transaksi berdasarkan ID
     transaction = db.session.query(Transaction).filter(Transaction.id == transaction_id).first()
-
     if not transaction:
         return jsonify({"error": "Transaction not found"}), 404
-
-    # Update status transaksi menjadi 'rejected'
     transaction.status = 'cancelled'
     db.session.commit()
-
     return jsonify({"message": f"Transaction {transaction_id} has been cancelled."}), 200
 
 
 def get_all_return_transactions():
-    # Query dengan join
     return_transactions = (
         db.session.query(
             ReturnTransaction.id.label("id_return_transaction"),
@@ -333,7 +314,6 @@ def get_all_return_transactions():
         .all()
     )
 
-    # Format hasil ke JSON
     result = []
     for rt in return_transactions:
         result.append({
@@ -350,7 +330,6 @@ def get_all_return_transactions():
 
 
 def get_return_transaction_detail(return_transaction_id):
-    # Ambil return transaksi utama
     return_transaction = (
         db.session.query(ReturnTransaction)
         .join(Reseller, ReturnTransaction.id_reseller == Reseller.id)
@@ -361,25 +340,23 @@ def get_return_transaction_detail(return_transaction_id):
     if not return_transaction:
         return jsonify({"error": "Return Transaction not found"}), 404
 
-    # Ambil detail produk yang direturn
     details = (
         db.session.query(
             Product.id.label("id_product"),
             Product.name.label("product_name"),
             Product.price.label("product_price"),
             ReturnDetailTransaction.quantity.label("quantity"),
-            ReturnDetailTransaction.reason.label("reason")
+            ReturnDetailTransaction.reason.label("reason"),
+            Product.expired_date.label("expired_date")
         )
         .join(Product, ReturnDetailTransaction.id_product == Product.id)
         .filter(ReturnDetailTransaction.id_return_transaction == return_transaction_id)
         .all()
     )
 
-    # Hitung total item & total harga
     total_items = sum(d.quantity for d in details)
     total_price = sum(d.quantity * d.product_price for d in details)
 
-    # Format hasil ke JSON
     result = {
         "id_return_transaction": return_transaction.id,
         "id_transaction": return_transaction.id_transaction,
@@ -394,7 +371,8 @@ def get_return_transaction_detail(return_transaction_id):
                 "quantity": d.quantity,
                 "price": float(d.product_price),
                 "subtotal": float(d.quantity * d.product_price),
-                "reason": d.reason
+                "reason": d.reason,
+                "expired_date": d.expired_date.strftime("%Y-%m-%d") if d.expired_date else None
             }
             for d in details
         ],
@@ -406,36 +384,26 @@ def get_return_transaction_detail(return_transaction_id):
 
 
 def accept_return_transaction(return_transaction_id):
-    # Cari return transaction berdasarkan ID
     return_transaction = (
         db.session.query(ReturnTransaction)
         .filter(ReturnTransaction.id == return_transaction_id)
         .first()
     )
-
     if not return_transaction:
         return jsonify({"error": "Return Transaction not found"}), 404
-
-    # Update status return menjadi 'accepted'
     return_transaction.status = 'approved'
     db.session.commit()
-
     return jsonify({"message": f"Return Transaction {return_transaction_id} has been accepted."}), 200
 
 
 def reject_return_transaction(return_transaction_id):
-    # Cari return transaction berdasarkan ID
     return_transaction = (
         db.session.query(ReturnTransaction)
         .filter(ReturnTransaction.id == return_transaction_id)
         .first()
     )
-
     if not return_transaction:
         return jsonify({"error": "Return Transaction not found"}), 404
-
-    # Update status return menjadi 'rejected'
     return_transaction.status = 'rejected'
     db.session.commit()
-
     return jsonify({"message": f"Return Transaction {return_transaction_id} has been rejected."}), 200
