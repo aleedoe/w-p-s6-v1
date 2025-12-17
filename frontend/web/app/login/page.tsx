@@ -63,7 +63,7 @@ export default function LoginPage() {
                         label="Email"
                         labelPlacement="outside"
                         placeholder="Enter your email"
-                        defaultValue="admin@gmail.com"
+                        defaultValue="admin@example.com"
                         classNames={{
                             label: "text-gray-700 dark:text-gray-300",
                             input: "dark:text-white",

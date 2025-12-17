@@ -38,7 +38,7 @@ class _ReturnPageState extends State<ReturnPage> {
     'Semua',
     'Disetujui',
     'Menunggu',
-    'Diproses',
+    // 'Diproses',
     'Ditolak',
   ];
 
