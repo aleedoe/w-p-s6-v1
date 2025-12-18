@@ -10,13 +10,13 @@ export const Products = () => {
             <h3 className="text-xl font-semibold">All Product</h3>
             <div className="flex justify-between flex-wrap gap-4 items-center">
                 <div className="flex items-center gap-3 flex-wrap md:flex-nowrap">
-                    <Input
+                    {/* <Input
                         classNames={{
                             input: "w-full",
                             mainWrapper: "w-full",
                         }}
                         placeholder="Search product"
-                    />
+                    /> */}
                 </div>
                 <div className="flex flex-row flex-wrap">
                     <AddProduct />
