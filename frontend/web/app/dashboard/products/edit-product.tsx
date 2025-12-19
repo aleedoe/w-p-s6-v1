@@ -145,10 +145,22 @@ export const EditProduct: React.FC<EditProductProps> = ({
                     </ModalHeader>
                     <ModalBody>
                         <Input
+                            label="Kode Item"
+                            variant="bordered"
+                            value={form.item_code}
+                            onChange={(e) => handleChange("item_code", e.target.value)}
+                        />
+                        <Input
                             label="Nama Produk"
                             variant="bordered"
                             value={form.name}
                             onChange={(e) => handleChange("name", e.target.value)}
+                        />
+                        <Input
+                            label="Seri Item"
+                            variant="bordered"
+                            value={form.item_series}
+                            onChange={(e) => handleChange("item_series", e.target.value)}
                         />
                         <Input
                             label="Harga"
@@ -163,18 +175,6 @@ export const EditProduct: React.FC<EditProductProps> = ({
                             variant="bordered"
                             value={form.quantity}
                             onChange={(e) => handleChange("quantity", e.target.value)}
-                        />
-                        <Input
-                            label="Kode Item"
-                            variant="bordered"
-                            value={form.item_code}
-                            onChange={(e) => handleChange("item_code", e.target.value)}
-                        />
-                        <Input
-                            label="Seri Item"
-                            variant="bordered"
-                            value={form.item_series}
-                            onChange={(e) => handleChange("item_series", e.target.value)}
                         />
 
                         {/* Date Picker for Expired Date */}
