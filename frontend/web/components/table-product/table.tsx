@@ -16,6 +16,8 @@ import { productService, Product } from "@/services/productService";
 const columns = [
   { name: "NO", uid: "no" },
   { name: "NAMA", uid: "name" },
+  { name: "KODE ITEM", uid: "item_code" },
+  { name: "SERI ITEM", uid: "item_series" },
   { name: "HARGA", uid: "price" },
   { name: "JUMLAH", uid: "quantity" },
   { name: "TGL KADALUARSA", uid: "expired_date" },
@@ -60,6 +62,8 @@ export const TableProduct = () => {
           items={products.map((p, index) => ({
             ...p,
             no: index + 1,
+            item_code: p.item_code || "-",
+            item_series: p.item_series || "-",
             expired_date: p.expired_date || "-", // fallback for null values
           }))}
           isLoading={loading}
@@ -69,11 +73,9 @@ export const TableProduct = () => {
             <TableRow key={item.id}>
               {(columnKey) => (
                 <TableCell>
-                  {/* handle expired_date display formatting here if needed */}
-                  {columnKey === "expired_date"
-                    ? (item.expired_date && item.expired_date !== "-"
-                        ? item.expired_date
-                        : "-")
+                  {/* handle expired_date, item_code, item_series display */}
+                  {columnKey === "expired_date" || columnKey === "item_code" || columnKey === "item_series"
+                    ? (item[columnKey as keyof typeof item] || "-")
                     : <RenderCell user={item as any} columnKey={columnKey} />
                   }
                 </TableCell>

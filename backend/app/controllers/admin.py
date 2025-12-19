@@ -32,6 +32,8 @@ def get_all_products():
         result.append({
             "id": product.id,
             "name": product.name,
+            "item_code": product.item_code,
+            "item_series": product.item_series,
             "quantity": product.quantity,
             "price": product.price,
             "expired_date": product.expired_date.strftime("%Y-%m-%d") if product.expired_date else None
@@ -48,6 +50,8 @@ def get_product_detail(product_id):
     result = {
         "id": product.id,
         "name": product.name,
+        "item_code": product.item_code,
+        "item_series": product.item_series,
         "images": images,
         "price": product.price,
         "quantity": product.quantity,
@@ -63,6 +67,8 @@ def create_product():
     quantity = request.form.get("quantity", 0)
     description = request.form.get("description", "")
     expired_date_str = request.form.get("expired_date")
+    item_code = request.form.get("item_code")
+    item_series = request.form.get("item_series")
 
     expired_date = None
     if expired_date_str:
@@ -73,6 +79,8 @@ def create_product():
 
     new_product = Product(
         name=name,
+        item_code=item_code,
+        item_series=item_series,
         quantity=quantity,
         price=price,
         description=description,
@@ -103,6 +111,8 @@ def create_product():
         "product": {
             "id": new_product.id,
             "name": new_product.name,
+            "item_code": new_product.item_code,
+            "item_series": new_product.item_series,
             "quantity": new_product.quantity,
             "price": new_product.price,
             "description": new_product.description,
@@ -122,6 +132,8 @@ def update_product(product_id):
     quantity = request.form.get("quantity")
     description = request.form.get("description")
     expired_date_str = request.form.get("expired_date")
+    item_code = request.form.get("item_code")
+    item_series = request.form.get("item_series")
 
     if name:
         product.name = name
@@ -139,6 +151,10 @@ def update_product(product_id):
                 product.expired_date = datetime.strptime(expired_date_str, "%Y-%m-%d")
             except Exception:
                 return jsonify({"msg": "Invalid expired_date format, must be YYYY-MM-DD"}), 400
+    if item_code is not None:
+        product.item_code = item_code if item_code != "" else None
+    if item_series is not None:
+        product.item_series = item_series if item_series != "" else None
 
     removed_images = request.form.getlist("removedImages[]")
     for filename in removed_images:
@@ -168,6 +184,8 @@ def update_product(product_id):
         "product": {
             "id": product.id,
             "name": product.name,
+            "item_code": product.item_code,
+            "item_series": product.item_series,
             "quantity": product.quantity,
             "price": product.price,
             "description": product.description,

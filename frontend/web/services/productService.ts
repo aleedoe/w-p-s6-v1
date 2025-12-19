@@ -4,6 +4,8 @@ import api from "@/lib/axios";
 export interface Product {
     id: number;
     name: string;
+    item_code?: string | null;
+    item_series?: string | null;
     price: number;
     quantity: number;
     description?: string;
@@ -27,6 +29,8 @@ export const productService = {
         price: number;
         quantity: number;
         description?: string;
+        item_code?: string | null;
+        item_series?: string | null;
         images?: File[]; // untuk upload gambar
         expired_date?: string | null; // string (YYYY-MM-DD) atau null
     }) {
@@ -36,6 +40,8 @@ export const productService = {
         formData.append("price", String(payload.price));
         formData.append("quantity", String(payload.quantity));
         if (payload.description) formData.append("description", payload.description);
+        if (payload.item_code) formData.append("item_code", payload.item_code);
+        if (payload.item_series) formData.append("item_series", payload.item_series);
         if (payload.expired_date)
             formData.append("expired_date", payload.expired_date);
 
@@ -58,6 +64,8 @@ export const productService = {
             price: number;
             quantity: number;
             description?: string;
+            item_code?: string | null;
+            item_series?: string | null;
             expired_date?: string | null;
             removedImages?: string[];
         },
@@ -68,6 +76,8 @@ export const productService = {
         formData.append("price", String(payload.price));
         formData.append("quantity", String(payload.quantity));
         formData.append("description", payload.description || "");
+        formData.append("item_code", payload.item_code || "");
+        formData.append("item_series", payload.item_series || "");
         if (payload.expired_date)
             formData.append("expired_date", payload.expired_date);
 

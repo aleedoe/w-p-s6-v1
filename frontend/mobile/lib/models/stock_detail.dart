@@ -6,6 +6,8 @@ class StockDetail {
   final List<String> images;
   final double price;
   final String productName;
+  final String? itemCode;
+  final String? itemSeries;
   final int totalIn;
   final int totalOut;
   final String? expiredDate;
@@ -17,6 +19,8 @@ class StockDetail {
     required this.images,
     required this.price,
     required this.productName,
+    this.itemCode,
+    this.itemSeries,
     required this.totalIn,
     required this.totalOut,
     this.expiredDate,
@@ -30,6 +34,8 @@ class StockDetail {
       images: List<String>.from(json['images'] ?? []),
       price: (json['price'] ?? 0).toDouble(),
       productName: json['product_name'] ?? '',
+      itemCode: json['item_code'],
+      itemSeries: json['item_series'],
       totalIn: json['total_in'] ?? 0,
       totalOut: json['total_out'] ?? 0,
       expiredDate: json['expired_date']?.toString(),
@@ -44,6 +50,8 @@ class StockDetail {
       'images': images,
       'price': price,
       'product_name': productName,
+      'item_code': itemCode,
+      'item_series': itemSeries,
       'total_in': totalIn,
       'total_out': totalOut,
       'expired_date': expiredDate,
@@ -67,8 +75,11 @@ class StockResponse {
 
   factory StockResponse.fromJson(Map<String, dynamic> json) {
     return StockResponse(
-      details: (json['details'] as List<dynamic>?)
-              ?.map((item) => StockDetail.fromJson(item as Map<String, dynamic>))
+      details:
+          (json['details'] as List<dynamic>?)
+              ?.map(
+                (item) => StockDetail.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
       idReseller: json['id_reseller'] ?? 0,

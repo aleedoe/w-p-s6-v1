@@ -3,12 +3,16 @@
 class Product {
   final int id;
   final String name;
+  final String? itemCode;
+  final String? itemSeries;
   final double price;
   final int quantity;
 
   Product({
     required this.id,
     required this.name,
+    this.itemCode,
+    this.itemSeries,
     required this.price,
     required this.quantity,
   });
@@ -17,6 +21,8 @@ class Product {
     return Product(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
+      itemCode: json['item_code'],
+      itemSeries: json['item_series'],
       price: (json['price'] ?? 0).toDouble(),
       quantity: json['quantity'] ?? 0,
     );
@@ -26,6 +32,8 @@ class Product {
     return {
       'id': id,
       'name': name,
+      'item_code': itemCode,
+      'item_series': itemSeries,
       'price': price,
       'quantity': quantity,
     };

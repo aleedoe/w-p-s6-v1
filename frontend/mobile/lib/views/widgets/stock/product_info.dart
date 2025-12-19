@@ -33,6 +33,17 @@ class ProductInfo extends StatelessWidget {
         // Nama produk dan badge stok
         _buildNameAndBadge(),
         const SizedBox(height: 4),
+        // Kode Item dan Seri Item (jika ada)
+        if (product.itemCode != null && product.itemCode!.isNotEmpty)
+          Text(
+            'Kode: ${product.itemCode}',
+            style: const TextStyle(fontSize: 12, color: Color(0xFF666666)),
+          ),
+        if (product.itemSeries != null && product.itemSeries!.isNotEmpty)
+          Text(
+            'Seri: ${product.itemSeries}',
+            style: const TextStyle(fontSize: 12, color: Color(0xFF666666)),
+          ),
         // Deskripsi
         Text(
           product.description,

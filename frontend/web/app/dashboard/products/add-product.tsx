@@ -25,6 +25,8 @@ export const AddProduct = () => {
         price: "",
         quantity: "",
         description: "",
+        item_code: "",
+        item_series: "",
         expired_date: null as string | null, // <-- add expired_date (ISO string or null)
     });
 
@@ -77,6 +79,8 @@ export const AddProduct = () => {
                 price: Number(form.price),
                 quantity: Number(form.quantity),
                 description: form.description,
+                item_code: form.item_code || null,
+                item_series: form.item_series || null,
                 expired_date: form.expired_date ? form.expired_date : null, // <-- include expired_date
                 images: files, // ⬅️ KIRIM FILE DI SINI
             });
@@ -88,6 +92,8 @@ export const AddProduct = () => {
                 price: "",
                 quantity: "",
                 description: "",
+                item_code: "",
+                item_series: "",
                 expired_date: null,
             });
             setSelectedKeys(new Set());
@@ -131,6 +137,18 @@ export const AddProduct = () => {
                                     variant="bordered"
                                     value={form.quantity}
                                     onChange={(e) => handleChange("quantity", e.target.value)}
+                                />
+                                <Input
+                                    label="Kode Item"
+                                    variant="bordered"
+                                    value={form.item_code}
+                                    onChange={(e) => handleChange("item_code", e.target.value)}
+                                />
+                                <Input
+                                    label="Seri Item"
+                                    variant="bordered"
+                                    value={form.item_series}
+                                    onChange={(e) => handleChange("item_series", e.target.value)}
                                 />
 
                                 {/* Date Picker for Expired Date */}

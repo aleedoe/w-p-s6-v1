@@ -37,6 +37,8 @@ export const EditProduct: React.FC<EditProductProps> = ({
         price: "",
         quantity: "",
         description: "",
+        item_code: "",
+        item_series: "",
         expired_date: null as string | null, // <-- add expired_date (ISO string or null)
     });
     const [files, setFiles] = useState<File[]>([]);
@@ -91,6 +93,8 @@ export const EditProduct: React.FC<EditProductProps> = ({
                         price: String(data.price || ""),
                         quantity: String(data.quantity || ""),
                         description: data.description || "",
+                        item_code: data.item_code || "",
+                        item_series: data.item_series || "",
                         expired_date: data.expired_date || null, // <-- set expired_date from API
                     });
 
@@ -115,6 +119,8 @@ export const EditProduct: React.FC<EditProductProps> = ({
                     price: Number(form.price),
                     quantity: Number(form.quantity),
                     description: form.description,
+                    item_code: form.item_code || null,
+                    item_series: form.item_series || null,
                     expired_date: form.expired_date ? form.expired_date : null, // <-- include expired_date
                     removedImages, // kirim ke backend
                 },
@@ -157,6 +163,18 @@ export const EditProduct: React.FC<EditProductProps> = ({
                             variant="bordered"
                             value={form.quantity}
                             onChange={(e) => handleChange("quantity", e.target.value)}
+                        />
+                        <Input
+                            label="Kode Item"
+                            variant="bordered"
+                            value={form.item_code}
+                            onChange={(e) => handleChange("item_code", e.target.value)}
+                        />
+                        <Input
+                            label="Seri Item"
+                            variant="bordered"
+                            value={form.item_series}
+                            onChange={(e) => handleChange("item_series", e.target.value)}
                         />
 
                         {/* Date Picker for Expired Date */}

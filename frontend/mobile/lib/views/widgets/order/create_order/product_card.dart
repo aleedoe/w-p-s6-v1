@@ -74,6 +74,11 @@ class ProductCard extends StatelessWidget {
             color: Color(0xFF333333),
           ),
         ),
+        if (product.itemCode != null && product.itemCode!.isNotEmpty)
+          Text(
+            'Kode: ${product.itemCode}',
+            style: TextStyle(fontSize: 11, color: Color(0xFF666666)),
+          ),
         SizedBox(height: 8),
         Row(
           children: [

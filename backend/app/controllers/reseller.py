@@ -59,6 +59,8 @@ def res_get_all_products():
         result.append({
             "id": product.id,
             "name": product.name,
+            "item_code": product.item_code,
+            "item_series": product.item_series,
             "quantity": product.quantity,
             "price": product.price
         })
@@ -78,6 +80,8 @@ def res_get_product_detail(product_id):
     result = {
         "id": product.id,
         "name": product.name,
+        "item_code": product.item_code,
+        "item_series": product.item_series,
         "images": images,
         "price": product.price,
         "quantity": product.quantity,
@@ -92,6 +96,8 @@ def res_get_stocks(id_reseller: int):
         db.session.query(
             Product.id.label("id_product"),
             Product.name.label("product_name"),
+            Product.item_code.label("item_code"),
+            Product.item_series.label("item_series"),
             Product.expired_date.label("expired_date"),
             Product.price.label("price"),
             Product.description.label("description"),
@@ -122,7 +128,7 @@ def res_get_stocks(id_reseller: int):
         .join(DetailTransaction, DetailTransaction.id_product == Product.id)
         .join(Transaction, Transaction.id == DetailTransaction.id_transaction)
         .filter(Transaction.id_reseller == id_reseller)
-        .group_by(Product.id, Product.name, Product.expired_date, Product.price, Product.description)
+        .group_by(Product.id, Product.name, Product.item_code, Product.item_series, Product.expired_date, Product.price, Product.description)
         .all()
     )
 
@@ -144,6 +150,8 @@ def res_get_stocks(id_reseller: int):
         result.append({
             "id_product": s.id_product,
             "product_name": s.product_name,
+            "item_code": s.item_code,
+            "item_series": s.item_series,
             "expired_date": format_expired_date(s.expired_date),  # ⬅ sudah diformat
             "price": float(s.price),
             "description": s.description,
